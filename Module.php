@@ -1,6 +1,6 @@
 <?php
 /**
- * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS. 
+ * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
  * @category Module
  * @package  ZfMinify
@@ -30,26 +30,25 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface {
         return require __DIR__ . '/config/module.config.php';
     }
 
-//     public function getAutoloaderConfig () {
-//         return array(
-//             'Zend\Loader\ClassMapAutoloader' => array(
-//                 __DIR__ . '/autoload_classmap.php'
-//             ),
-//             'Zend\Loader\StandardAutoloader' => array(
-//                 'namespaces' => array(
-//                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__
-//                 )
-//             )
-//         );
-//     }
-    
+    public function getAutoloaderConfig () {
+        return array(
+            'Zend\Loader\ClassMapAutoloader' => array(
+                __DIR__ . '/autoload_classmap.php'
+            ),
+            'Zend\Loader\StandardAutoloader' => array(
+                'namespaces' => array(
+                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__
+                )
+            )
+        );
+    }
+
     /** @return array */
     public function getViewHelperConfig()
     {
         return array(
             'invokables' => array(
                 'headscript' => 'ZfMinify\View\Helper\HeadScript'
-                // try to avoid this idea in your project
                 // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
             )
         );
