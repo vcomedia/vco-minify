@@ -1,0 +1,28 @@
+{
+    "name": "vcomedia/zf-minify",
+    "description": "Zend Framework 2 module which uses the Steve (mrclay) Clay's Minify library for styles and scripts obfuscation",
+    "type": "library",
+    "homepage": "http://github.com/vcomedia/zf-minify",
+    "license": "MIT",
+    "keywords": [
+        "zf2",
+        "minify",
+        "obfuscation",
+        "asset"
+    ],
+    "authors": [
+        {
+            "name": "Vahag Dudukgian",
+            "email": "vahag@vcomedia.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">=2.2",
+        "matthiasmullie/minify": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {"ZfMinify": "src/"},
+        "classmap": ["src/Module.php"]
+    }
+}
