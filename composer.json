@@ -19,6 +19,6 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": ">=2.2",
-        "matthiasmullie/minify": "dev-master"
+        "matthiasmullie/minify": "*"
     }
 }
