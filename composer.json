@@ -19,6 +19,10 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": ">=2.2",
-        "matthiasmullie/minify": "*"
+        "matthiasmullie/minify": "1.*"
+    },
+    "autoload": {
+        "psr-0": {"ZfMinify": "src/"},
+        "classmap": ["src/Module.php"]
     }
 }
