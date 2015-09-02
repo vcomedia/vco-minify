@@ -79,94 +79,85 @@ class HeadLink extends HeadLinkOriginal implements
           ->getServiceLocator()
           ->get('Config');
       $isMinifyEnabled = $config['ZfMinify']['minifyCSS']['enabled'];
-      $docRoot = trim($config['ZfMinify']['documentRoot'],'/\ ');
-      $cachePath = trim($config['ZfMinify']['cachePath'],'/\ ');
-      $absoluteDocRootPath = getcwd() . '/' . $docRoot . '/';
+      $docRootDir = trim($config['ZfMinify']['docRootDir'],'/\ ');
+      $docRootPath = getcwd() . '/' . $docRootDir . '/';
+      $cacheDir = trim($config['ZfMinify']['cacheDir'],'/\ ');
+      $cachePath = $docRootPath . $cacheDir;
 
-      if ($isMinifyEnabled === false || !is_writable($absoluteDocRootPath . $cachePath)) {
+      if ($isMinifyEnabled === false || !is_writable($cachePath)) {
           return parent::toString($indent);
       }
 
       //TODO: move below excecption outside of toString() method
-      // if (!is_writable($absoluteDocRootPath . $cachePath)) {
-      //     throw new \Exception("Cache path not writable $absoluteDocRootPath . $cachePath")
+      // if(!file_exists($cachePath)) {
+      //   mkdir($cachePath, 0755);
       // }
+      // if (!is_writable($cachePath)) {
+      //     throw new \Exception("Cache path not writable '$cachePath'")
+      // }
+
 
       $indent = (null !== $indent)
         ? $this->getWhitespace($indent)
         : $this->getIndent();
 
+      $filesToMinify = array();
+      $lastModifiedTime = 0;
+
       $items = [];
       $this->getContainer()->ksort();
       foreach ($this as $item) {
-          $items[] = $this->itemToString($item);
+          if (!$this->isValid($item)) {
+              continue;
+          }
+
+          $itemSrcPath = !empty($item->href) ? $docRootPath . trim($item->href,'/\ ') : null;
+          if($item->type === 'text/css'
+              && $itemSrcPath
+              && file_exists($itemSrcPath)
+              && empty($item->conditionalStylesheet)
+              && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
+          ) {
+            $filesToMinify[$item->media][] = $itemSrcPath;
+          } else {
+            $items[] = $this->itemToString($item);
+          }
+      }
+
+      if(count($filesToMinify, COUNT_RECURSIVE) > 0) {
+        foreach($filesToMinify as $media => $filePaths) {
+          $minifiedFileName = md5(implode('|', $filePaths) . $media) . '.js';
+          $minifiedFileBasePath = $this->view->basePath($cacheDir . '/' . $minifiedFileName);
+          $minifiedFilePath = $docRootPath . trim($minifiedFileBasePath, '\/ ');
+          $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
+
+          if ((!file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime)
+              && (!file_exists($lockFilePath) || time() > filemtime($lockFilePath) + 600)   //ignore stray lock files
+          ){
+                file_put_contents($lockFilePath, 'locked', LOCK_EX);
+                $pieces = array();
+                foreach ($filePaths as $filePath) {
+                    $pieces[] = file_get_contents($filePath);
+                }
+                $content = implode($this->getSeparator(), $pieces);
+                $content = $this->minifyService->minify($content);
+                file_put_contents($minifiedFilePath, $content, LOCK_EX);
+                unlink($lockFilePath);
+          }
+
+          $item = $this->createData(
+            array(
+              'type'=>'text/css',
+              'rel' => 'stylesheet',
+              'media' => $media,
+              'href' => $minifiedFileBasePath . '?v=' . $lastModifiedTime,
+              'conditionalStylesheet' => false
+            )
+          );
+          array_unshift($items, $this->itemToString($item));
+        }
       }
 
       return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
-
-
-
-        // $indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
-        //
-        // if ($this->view) {
-        //     $useCdata = $this->view->plugin('doctype')->isXhtml();
-        // } else {
-        //     $useCdata = $this->useCdata;
-        // }
-        //
-        // $escapeStart = ($useCdata) ? '//<![CDATA[' : '//<!--';
-        // $escapeEnd = ($useCdata) ? '//]]>' : '//-->';
-        //
-        // $itemsToNotMinify = array();
-        // $filesToMinify = array();
-        // $lastModifiedTime = 0;
-        //
-        // $items = [];
-        // $this->getContainer()->ksort();
-        // foreach ($this as $item) {
-        //     if (! $this->isValid($item)) {
-        //         continue;
-        //     }
-        //
-        //     $itemSrcPath = (!empty($item->attributes) && !empty($item->attributes['src'])) ? $absoluteDocRootPath . trim($item->attributes['src'],'/\ ') : null;
-        //
-        //     if($item->type === 'text/javascript'
-        //         && $itemSrcPath
-        //         && file_exists($itemSrcPath)
-        //         && empty($item->attributes['conditional'])
-        //         && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
-        //     ) {
-        //         $filesToMinify[] = $itemSrcPath;
-        //         $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
-        //     } else {
-        //         $items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
-        //     }
-        // }
-        //
-        // if(count($filesToMinify) > 0) {
-        //   $minifiedFileName = md5(implode('|', $filesToMinify)) . '.js';
-        //   $minifiedFilePath = $this->view->basePath($cachePath . '/' . $minifiedFileName);
-        //   $absoluteFilePath = $absoluteDocRootPath . trim($minifiedFilePath, '\/ ');
-        //   $absoluteLockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
-        //
-        //   if ((!file_exists($absoluteFilePath) || filemtime($absoluteFilePath) < $lastModifiedTime)
-        //       && (!file_exists($absoluteLockFilePath) || time() > filemtime($absoluteLockFilePath) + 600)   //ignore stray lock files
-        //   ){
-        //         file_put_contents($absoluteLockFilePath, 'locked', LOCK_EX);
-        //         $pieces = array();
-        //         foreach ($filesToMinify as $filePath) {
-        //             $pieces[] = file_get_contents($filePath);
-        //         }
-        //         $content = implode($this->getSeparator(), $pieces);
-        //         $content = $this->minifyService->minify($content);
-        //         file_put_contents($absoluteFilePath, $content, LOCK_EX);
-        //         unlink($absoluteLockFilePath);
-        //   }
-        //
-        //   $item = $this->createData('text/javascript', array('src' => $minifiedFilePath . '?v=' . $lastModifiedTime));
-        //   array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
-        // }
-        //
-        // return implode($this->getSeparator(), $items);
     }
 }

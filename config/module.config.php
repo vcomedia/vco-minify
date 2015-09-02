@@ -13,15 +13,13 @@ namespace ZfMinify;
 
 return array(
     'ZfMinify' => array(
-        'documentRoot' => 'public/',  //path to public dir from app root
-        'cachePath' => 'cache/',      //cache folder in documentRoot
+        'docRootDir' => 'public/',  //path to docRoot relative to app root - (preceeding and trailing slashes ignored)
+        'cacheDir' => 'cache/',      //cache folder in documentRoot - (preceeding and trailing slashes ignored)
         'minifyCSS' => array(
-            'enabled' => false,
-            'maxAge' => 86400
+            'enabled' => false
         ),
         'minifyJS' => array(
-            'enabled' => false,
-            'maxAge' => 86400
+            'enabled' => false
         )
     )
 );
