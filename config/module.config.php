@@ -11,8 +11,8 @@
 
 return array(
     'ZfMinify' => array(
-        'cachePath' => 'cache/',  //folder in Document Root
-        'cacheFileLocking' => true,
+        'documentRoot' => 'public/',  //path to public dir from app root
+        'cachePath' => 'cache/',      //cache folder in documentRoot
         'minifyCSS' => array(
             'enabled' => false,
             'maxAge' => 86400

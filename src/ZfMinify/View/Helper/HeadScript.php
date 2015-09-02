@@ -63,6 +63,7 @@ class HeadScript extends HeadScriptOriginal implements
             ->getServiceLocator()
             ->get('Config');
         $isEnabled = $config['ZfMinify']['minifyJS']['enabled'];
+        $docRoot = $config['ZfMinify']['documentRoot'];
         $cachePath = $config['ZfMinify']['cachePath'];
 
         if ($isEnabled === false) {
@@ -94,7 +95,7 @@ class HeadScript extends HeadScriptOriginal implements
             if($item->type === 'text/javascript'
                 && !empty($item->attributes)
                 && !empty($item->attributes['src'])
-                && file_exists($item->attributes['src'])
+                && file_exists(getcwd() . '/' . $docRoot . $item->attributes['src'])
                 && empty($item->attributes['conditional'])
                 && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
             ) {
@@ -115,9 +116,10 @@ class HeadScript extends HeadScriptOriginal implements
 
           $lastmodified = $options['lastModifiedTime'];
           $filename = $this->generateFileName($itemSrcsToMinify, $cachePath);
-          $lockfilename = $filename . '.lock';
+          $absoluteFilename = getcwd() . '/' . $docRoot . $filename;
+          $lockfilename = $absoluteFilename . '.lock';
 
-          if ((!file_exists($filename) || filemtime($filename) < $lastmodified)
+          if ((!file_exists($absoluteFilename) || filemtime($absoluteFilename) < $lastmodified)
               && (!file_exists($lockfilename) || time() > filemtime($lockfilename) + 600)
           ){
                 file_put_contents($lockfilename, 'locked', LOCK_EX);
@@ -127,7 +129,7 @@ class HeadScript extends HeadScriptOriginal implements
                 }
                 $content = implode($this->getSeparator(), $pieces);
                 $content = JsMin::minify($content);
-                file_put_contents($filename, $content, LOCK_EX);
+                file_put_contents($absoluteFilename, $content, LOCK_EX);
                 unlink($lockfilename);
           }
 
