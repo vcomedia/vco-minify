@@ -7,5 +7,5 @@ interface MinifyServiceInterface {
   * @param $content (String)
   * @return (string) Minified content
   */
-  public function minify($content);
+  public function minify($content, $options = array());
 }

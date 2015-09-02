@@ -137,10 +137,9 @@ class HeadLink extends HeadLinkOriginal implements
                 file_put_contents($lockFilePath, 'locked', LOCK_EX);
                 $pieces = array();
                 foreach ($filePaths as $filePath) {
-                    $pieces[] = file_get_contents($filePath);
+                    $pieces[] = $this->minifyService->minify(file_get_contents($filePath), array('docRoot' => $docRootPath, 'currentDir' => dirname($filePath)));
                 }
                 $content = implode($this->getSeparator(), $pieces);
-                $content = $this->minifyService->minify($content);
                 file_put_contents($minifiedFilePath, $content, LOCK_EX);
                 unlink($lockFilePath);
           }
