@@ -1,27 +1,50 @@
 ## ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
-This module was inspired by [TpMinify](https://github.com/kkamkou/tp-minify) and uses the [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library for styles and scripts obfuscation.
+This module extends the default headScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly. 
 
 ## Installation
 ### Composer
- * Install the [Composer](http://getcomposer.org/doc/00-intro.md)
- * Add ```"vcomedia/zf-minify": "dev-master"``` to a ```composer.json``` file, to the ```require``` section
- * Execute ```composer update```
- * Add ```'modules' => array('ZfMinify', ...)``` to the ```application.config.php``` file of your project. *Important thing is to place the "ZfMinify" before any other modules.*
- * Open (just an example) the ```Frontend/config/module.config.php``` and add this config stub:
+ *Install [Composer](http://getcomposer.org/doc/00-intro.md)
+ *Install the module using Composer into your application's vendor directory. Add the following line to your
+`composer.json`.
 
-```php
-
-'ZfMinify' => array(
-	'minifyCSS' => array(
-		'enabled' => true,
-		'maxAge' => 86400
-	),
-	'minifyJS' => array(
-		'enabled' => true,
-		'maxAge' => 86400
-	)
-)
+ ```json
+ {
+    "require": {
+        "vcomedia/zf-minify": "dev-master"
+    }
+ }
 ```
+ * Execute ```composer update```
+ *Enable the module in your ZF2 `application.config.php` file.
+
+ ```php
+ return array(
+     'modules' => array(
+         'ZfMinify'
+     )
+ );
+ ```
+  *Copy and paste the `aws.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and
+  other configuration settings. Make sure to remove `.dist` from your file. Your `aws.local.php` might look something like
+  the following:
+
+  ```php
+ <?php
+
+ return array(
+     'ZfMinify' => array(
+         'docRootDir' => 'public/',  //path to docRoot relative to app root - (preceeding and trailing slashes ignored)
+         'cacheDir' => 'cache/',      //cache folder in documentRoot - (preceeding and trailing slashes ignored)
+         'minifyCSS' => array(
+             'enabled' => true
+         ),
+         'minifyJS' => array(
+             'enabled' => true
+         )
+     )
+ );
+  ```
+
  * Put styles and scripts into the Head section:
 
 ```php

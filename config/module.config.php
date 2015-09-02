@@ -1,6 +1,4 @@
 <?php
-namespace ZfMinify;
-
 /**
  * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
@@ -10,6 +8,8 @@ namespace ZfMinify;
  * @license  http://opensource.org/licenses/MIT The MIT License (MIT)
  * @link     http://github.com/vcomedia/zf-minify/
  */
+
+namespace ZfMinify;
 
 return array(
     'ZfMinify' => array(
