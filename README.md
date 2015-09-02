@@ -61,11 +61,10 @@ $this->headScript()->prependFile($this->basePath('some/path.js'), 'text/javascri
  $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
  $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
  ```
- *  
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 Kanstantsin Kamkou
+Copyright (c) 2015 Vahag Dudukgian
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
