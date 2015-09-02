@@ -51,8 +51,8 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
     {
         return array(
             'factories' => array(
-                'headscript' => 'ZfMinify\Factory\HeadScriptFactory'
-                // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
+                'headscript' => 'ZfMinify\Factory\HeadScriptFactory',
+                 'headstyle' => 'ZfMinify\Factory\HeadStyleFactory'
             )
         );
     }
@@ -61,7 +61,8 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
     public function getServiceConfig() {
         return array(
             'invokables' => array(
-                'ZfMinify\Service\MinifyServiceInterface' => 'ZfMinify\Service\MinifyJsService'
+                'ZfMinify\Service\MinifyJsService' => 'ZfMinify\Service\MinifyJsService',
+                'ZfMinify\Service\MinifyCssService' => 'ZfMinify\Service\MinifyCssService'
             )
         );
     }

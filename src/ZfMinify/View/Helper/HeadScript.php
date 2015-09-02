@@ -15,7 +15,6 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\View\Helper\HeadScript as HeadScriptOriginal;
 use ZfMinify\Service\MinifyServiceInterface;
-use JSMin;
 
 /**
  * Class HeadScript

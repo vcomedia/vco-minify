@@ -23,15 +23,5 @@ return array(
             'enabled' => false,
             'maxAge' => 86400
         )
-    ),
-    'view_manager' => array(
-      'factories' => array(
-          'headscript' => 'ZfMinify\Factory\HeadScriptFactory'
-      )
-    ),
-    'service_manager' => array(
-        'invokables' => array(
-            'ZfMinify\Service\MinifyJsService' => 'ZfMinify\Service\MinifyJsService'
-        )
     )
 );
