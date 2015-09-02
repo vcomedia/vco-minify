@@ -67,12 +67,8 @@ class HeadScript extends HeadScriptOriginal implements
         $cachePath = trim($config['ZfMinify']['cachePath'],'/\ ');
         $absoluteDocRootPath = getcwd() . '/' . $docRoot . '/';
 
-        if ($isMinifyEnabled === false) {
+        if ($isMinifyEnabled === false || !is_writable($absoluteDocRootPath . $cachePath)) {
             return parent::toString($indent);
-        }
-
-        if (!is_writable($absoluteDocRootPath . $cachePath)) {
-            throw new \Exception("Cache path not writable: $absoluteDocRootPath . $cachePath");
         }
 
         // minification enabled - start minifying!
