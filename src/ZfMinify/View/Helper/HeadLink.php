@@ -119,6 +119,7 @@ class HeadLink extends HeadLinkOriginal implements
               && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
           ) {
             $filesToMinify[$item->media][] = $itemSrcPath;
+            $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
           } else {
             $items[] = $this->itemToString($item);
           }
