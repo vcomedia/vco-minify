@@ -62,12 +62,17 @@ class HeadScript extends HeadScriptOriginal implements
         $config = $this->getServiceLocator()
             ->getServiceLocator()
             ->get('Config');
-        $isEnabled = $config['ZfMinify']['minifyJS']['enabled'];
-        $docRoot = $config['ZfMinify']['documentRoot'];
-        $cachePath = $config['ZfMinify']['cachePath'];
+        $isMinifyEnabled = $config['ZfMinify']['minifyJS']['enabled'];
+        $docRoot = trim($config['ZfMinify']['documentRoot'],'/\ ');
+        $cachePath = trim($config['ZfMinify']['cachePath'],'/\ ');
+        $absoluteDocRootPath = getcwd() . '/' . $docRoot . '/';
 
-        if ($isEnabled === false) {
+        if ($isMinifyEnabled === false) {
             return parent::toString($indent);
+        }
+
+        if (!is_writable($absoluteDocRootPath . $cachePath)) {
+            throw new \Exception("Cache path not writable: $absoluteDocRootPath . $cachePath");
         }
 
         // minification enabled - start minifying!
@@ -95,7 +100,7 @@ class HeadScript extends HeadScriptOriginal implements
             if($item->type === 'text/javascript'
                 && !empty($item->attributes)
                 && !empty($item->attributes['src'])
-                && file_exists(getcwd() . '/' . $docRoot . $item->attributes['src'])
+                && file_exists($absoluteDocRootPath . trim($item->attributes['src'],'/\ '))
                 && empty($item->attributes['conditional'])
                 && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
             ) {
@@ -115,25 +120,25 @@ class HeadScript extends HeadScriptOriginal implements
           $options = $controller->mixInDefaultOptions($options);
 
           $lastmodified = $options['lastModifiedTime'];
-          $filename = $this->generateFileName($itemSrcsToMinify, $cachePath);
-          $absoluteFilename = getcwd() . '/' . $docRoot . $filename;
-          $lockfilename = $absoluteFilename . '.lock';
+          $filePath = $this->generateFileName($itemSrcsToMinify, $cachePath);
+          $absoluteFilePath = $absoluteDocRootPath . trim($filePath, '\/ ');
+          $absoluteLockFilePath = $absoluteFilePath . '.lock';
 
-          if ((!file_exists($absoluteFilename) || filemtime($absoluteFilename) < $lastmodified)
-              && (!file_exists($lockfilename) || time() > filemtime($lockfilename) + 600)
+          if ((!file_exists($absoluteFilePath) || filemtime($absoluteFilePath) < $lastmodified)
+              && (!file_exists($absoluteLockFilePath) || time() > filemtime($absoluteLockFilePath) + 600)
           ){
-                file_put_contents($lockfilename, 'locked', LOCK_EX);
+                file_put_contents($absoluteLockFilePath, 'locked', LOCK_EX);
                 $pieces = array();
                 foreach ($controller->sources as $source) {
                     $pieces[] = $source->getContent();
                 }
                 $content = implode($this->getSeparator(), $pieces);
                 $content = JsMin::minify($content);
-                file_put_contents($absoluteFilename, $content, LOCK_EX);
-                unlink($lockfilename);
+                file_put_contents($absoluteFilePath, $content, LOCK_EX);
+                unlink($absoluteLockFilePath);
           }
 
-          $item = $this->createData('text/javascript', array('src' => $filename . '?v=' . $lastmodified));
+          $item = $this->createData('text/javascript', array('src' => $filePath . '?v=' . $lastmodified));
           array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
         }
 
@@ -141,6 +146,6 @@ class HeadScript extends HeadScriptOriginal implements
     }
 
     protected function generateFileName($files, $cachePath) {
-        return $this->view->basePath($cachePath . substr(md5(implode('|', $files)), 0, 8) . '.js');
+        return $this->view->basePath($cachePath . md5(implode('|', $files)) . '.js');
     }
 }
