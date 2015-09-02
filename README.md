@@ -23,9 +23,7 @@ This module extends the default headScript and headLink view helpers providing a
      )
  );
  ```
-  * Copy and paste the `aws.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and
-  other configuration settings. Make sure to remove `.dist` from your file. Your `aws.local.php` might look something like
-  the following:
+ * Copy and paste the `zf-minify/config/module.zf-minify.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and  other configuration settings. Make sure to remove `.dist` from your file. Your `module.zf-minify.local.php` might look something like the following:
 
   ```php
  <?php
@@ -48,16 +46,22 @@ This module extends the default headScript and headLink view helpers providing a
 
 ```php
 
-$this->headLink()->prependStylesheet($this->basePath('SOME/PATH.CSS'))
-$this->headScript()->prependFile($this->basePath('SOME/PATH.JS'))
+$this->headLink()->prependStylesheet($this->basePath('some/path.css'))
+$this->headScript()->prependFile($this->basePath('some/path.js'))
 ```
 ## Options
 It's possible to disable minification on a per file basis
 ```php
 $this->headScript()->setAllowArbitraryAttributes(true);
-$this->headScript()->prependFile($this->basePath('SOME/PATH.JS'), 'text/javascript', array('minify' => false))
+$this->headScript()->prependFile($this->basePath('some/path.js'), 'text/javascript', array('minify' => false))
 ```
-
+## Notes
+ * Any file that has a conditional will be ignored and not minified.
+ ```php
+ $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
+ $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
+ ```
+ *  
 ## License
 The MIT License (MIT)
 
