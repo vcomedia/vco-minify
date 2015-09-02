@@ -52,7 +52,7 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
         return array(
             'factories' => array(
                 'headscript' => 'ZfMinify\Factory\HeadScriptFactory',
-                 'headstyle' => 'ZfMinify\Factory\HeadStyleFactory'
+                'headlink' => 'ZfMinify\Factory\HeadLinkFactory'
             )
         );
     }
