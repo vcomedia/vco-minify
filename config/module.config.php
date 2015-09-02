@@ -1,6 +1,6 @@
 <?php
 /**
- * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS. 
+ * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
  * @category Module
  * @package  ZfMinify
@@ -11,6 +11,8 @@
 
 return array(
     'ZfMinify' => array(
+        'cachePath' => 'cache/',  //folder in Document Root
+        'cacheFileLocking' => true,
         'minifyCSS' => array(
             'enabled' => false,
             'maxAge' => 86400

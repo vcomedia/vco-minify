@@ -30,6 +30,7 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface {
         return require __DIR__ . '/config/module.config.php';
     }
 
+    //TODO: remove following method and autoload_classmap.php file
     public function getAutoloaderConfig () {
         return array(
             'Zend\Loader\ClassMapAutoloader' => array(

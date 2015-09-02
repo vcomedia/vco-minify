@@ -1,6 +1,6 @@
 <?php
 /**
- * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS. 
+ * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
  * @category Module
  * @package  ZfMinify
@@ -22,7 +22,7 @@ use Minify;
  * @package ZfMinify\View\Helper
  * @see ServiceLocatorAwareInterface
  */
-class HeadScript extends HeadScriptOriginal implements 
+class HeadScript extends HeadScriptOriginal implements
     ServiceLocatorAwareInterface {
 
     /**
@@ -34,7 +34,7 @@ class HeadScript extends HeadScriptOriginal implements
     /**
      * Set serviceManager instance
      *
-     * @param ServiceLocatorInterface $serviceLocator            
+     * @param ServiceLocatorInterface $serviceLocator
      * @return void
      */
     public function setServiceLocator (ServiceLocatorInterface $serviceLocator) {
@@ -49,49 +49,7 @@ class HeadScript extends HeadScriptOriginal implements
     public function getServiceLocator () {
         return $this->serviceLocator;
     }
-    
-    // /**
-    // * Create script HTML
-    // *
-    // * @param mixed $item Item to convert
-    // * @param string $indent String to add before the item
-    // * @param string $escapeStart Starting sequence
-    // * @param string $escapeEnd Ending sequence
-    // * @return string
-    // */
-    // public function itemToString($item, $indent, $escapeStart, $escapeEnd)
-    // {
-    // if (!empty($item->source)) {
-    // $config = $this->getServiceLocator()->getServiceLocator()->get('Config');
-    // $config = $config['ZfMinify']['helpers']['headScript'];
-    // if ($config['enabled']) {
-    // $result = Minify::serve(
-    // 'Files',
-    // array_merge(
-    // $config,
-    // array(
-    // 'quiet' => true,
-    // 'encodeOutput' => false,
-    // 'files' => new \Minify_Source(
-    // array(
-    // 'contentType' => Minify::TYPE_JS,
-    // 'content' => $item->source,
-    // 'id' => __CLASS__ . hash('crc32', $item->source)
-    // )
-    // )
-    // )
-    // )
-    // );
-    
-    // if ($result['success']) {
-    // $item->source = $result['content'];
-    // }
-    // }
-    // }
-    
-    // return parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
-    // }
-    
+
     /**
      * Combine all files and retrieve minified file
      *
@@ -104,45 +62,94 @@ class HeadScript extends HeadScriptOriginal implements
             ->getServiceLocator()
             ->get('Config');
         $isEnabled = $config['ZfMinify']['minifyJS']['enabled'];
-        
+
         if ($isEnabled === false) {
             return parent::toString($indent);
         }
-        
+
         // minification enabled - start minifying!
         $indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
-        
+
         if ($this->view) {
             $useCdata = $this->view->plugin('doctype')->isXhtml();
         } else {
             $useCdata = $this->useCdata;
         }
-        
+
         $escapeStart = ($useCdata) ? '//<![CDATA[' : '//<!--';
         $escapeEnd = ($useCdata) ? '//]]>' : '//-->';
-        
+
         $itemsToNotMinify = array();
         $itemSrcsToMinify = array();
-        
+
         $items = [];
         $this->getContainer()->ksort();
         foreach ($this as $item) {
             if (! $this->isValid($item)) {
                 continue;
             }
-            
-            if($item->type == 'text/javascript' &&	!empty($item->attributes) && !empty($item->attributes['src'] && 
-                (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false))) {
+
+            if($item->type === 'text/javascript'
+                && !empty($item->attributes)
+                && !empty($item->attributes['src'])
+                && file_exists($item->attributes['src'])
+                && empty($item->attributes['conditional'])
+                && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
+            ) {
                 $itemSrcsToMinify[] = $item->attributes['src'];
             } else {
                 $itemsToNotMinify[] = $item;
             }
         }
-        
-        
-        
+
+        //$itemSrcsToMinify = array_unique($itemSrcsToMinify);
+
+        if(count($itemSrcsToMinify) > 0) {
+          $controller = new Minify_Controller_Files();
+          $options = $controller->setupSources(array('files' => $scriptFiles));
+          $options = $controller->analyzeSources($options);
+          $options = $controller->mixInDefaultOptions($options);
+
+          $lastmodified = $options['lastModifiedTime'];
+          $filename = $this->generateFileName($scriptFiles);
+          $absolutefilename = $_SERVER['DOCUMENT_ROOT'] . $filename;
+          $lockfilename = $_SERVER['DOCUMENT_ROOT'] . $this->view->baseUrl($this->_targetFolder) . 'headscript-minify.lock';
+
+          if ((!file_exists($absolutefilename) || filemtime($absolutefilename) < $lastmodified) && (!file_exists($lockfilename) || time() > filemtime($lockfilename) + 600)) {
+                file_put_contents($lockfilename, 'locked', LOCK_EX);
+              foreach ($controller->sources as $source) {
+                    $pieces[] = $source->getContent();
+                }
+
+                if(!empty($item->source)) {
+                  $pieces[] = $item->source;
+                }
+
+                $content = implode($implodeSeparator, $pieces);
+                $content = FENGJUNK_Services_Google_Closure::compileJs($content);
+                file_put_contents($absolutefilename, $content, LOCK_EX);
+                unlink($lockfilename);
+          }
+
+          $item = new stdClass();
+          $item->type = 'text/javascript';
+          $item->attributes = array();
+          $item->attributes['src'] = $filename . '?v=' . $lastmodified;
+
+          $items[]	= $this->itemToString($item, $this->getIndent(), null, null);
+        }
+
+
         //$items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
-        
+
         return implode($this->getSeparator(), $items);
+    }
+
+    protected function generateFileName($files) {
+        $config = $this->getServiceLocator()
+            ->getServiceLocator()
+            ->get('Config');
+        $cachePath = $config['ZfMinify']['cachePath'];
+        return $this->view->basePath($cachePath . substr(md5(implode('|', $files)), 0, 8) . '.js');
     }
 }

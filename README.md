@@ -1,5 +1,5 @@
-## ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS. 
-This module was inspired by https://github.com/kkamkou/tp-minify and uses the [CSS & JavaScript minifier, in PHP](https://github.com/matthiasmullie/minify) library for styles and scripts obfuscation.
+## ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
+This module was inspired by [TpMinify](https://github.com/kkamkou/tp-minify) and uses the [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library for styles and scripts obfuscation.
 
 ## Installation
 ### Composer
