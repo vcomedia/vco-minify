@@ -61,6 +61,7 @@ $this->headScript()->prependFile($this->basePath('some/path.js'), 'text/javascri
  $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
  $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
  ```
+
 ## License
 The MIT License (MIT)
 
