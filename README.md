@@ -23,7 +23,7 @@ This module extends the default headScript and headLink view helpers providing a
      )
  );
  ```
- * Copy and paste the `zf-minify/config/module.zf-minify.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and  other configuration settings. Make sure to remove `.dist` from your file. Your `module.zf-minify.local.php` might look something like the following:
+ * Copy and paste the `zf-minify/config/module.zf-minify.local.php.dist` file to your `config/autoload` folder and customize it with your configuration settings. Make sure to remove `.dist` from your file. Your `module.zf-minify.local.php` might look something like the following:
 
   ```php
  <?php
