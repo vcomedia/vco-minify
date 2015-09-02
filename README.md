@@ -1,11 +1,10 @@
 ## ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
-This module extends the default headScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly. 
+This module extends the default headScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly.
 
 ## Installation
 ### Composer
  *Install [Composer](http://getcomposer.org/doc/00-intro.md)
- *Install the module using Composer into your application's vendor directory. Add the following line to your
-`composer.json`.
+ *Install the module using Composer into your application's vendor directory. Add the following line to your `composer.json`.
 
  ```json
  {
