@@ -31,7 +31,7 @@ return array(
     ),
     'service_manager' => array(
         'invokables' => array(
-            'ZfMinify\Service\MinifyServiceInterface' => 'ZfMinify\Service\MinifyJsService'
+            'ZfMinify\Service\MinifyJsService' => 'ZfMinify\Service\MinifyJsService'
         )
     )
 );

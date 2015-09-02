@@ -22,8 +22,7 @@ use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
  * @package ZfMinify
  */
 
- //ViewHelperProviderInterface
-class Module implements ConfigProviderInterface {
+class Module implements ConfigProviderInterface, ViewHelperProviderInterface, ServiceProviderInterface {
 
     /**
      * @return array
@@ -46,14 +45,23 @@ class Module implements ConfigProviderInterface {
         );
     }
 
-    // /** @return array */
-    // public function getViewHelperConfig()
-    // {
-    //     return array(
-    //         'invokables' => array(
-    //             'headscript' => 'ZfMinify\View\Helper\HeadScript'
-    //             // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
-    //         )
-    //     );
-    // }
+    /** @return array */
+    public function getViewHelperConfig()
+    {
+        return array(
+            'factories' => array(
+                'headscript' => 'ZfMinify\Factory\HeadScriptFactory'
+                // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
+            )
+        );
+    }
+
+     /** @return array */
+    public function getServiceConfig() {
+        return array(
+            'invokables' => array(
+                'ZfMinify\Service\MinifyServiceInterface' => 'ZfMinify\Service\MinifyJsService'
+            )
+        );
+    }
 }
