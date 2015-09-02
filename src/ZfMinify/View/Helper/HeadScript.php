@@ -14,7 +14,8 @@ namespace ZfMinify\View\Helper;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\View\Helper\HeadScript as HeadScriptOriginal;
-use Minify;
+use Minify_Controller_Files;
+use JSMin;
 
 /**
  * Class HeadScript
@@ -62,6 +63,7 @@ class HeadScript extends HeadScriptOriginal implements
             ->getServiceLocator()
             ->get('Config');
         $isEnabled = $config['ZfMinify']['minifyJS']['enabled'];
+        $cachePath = $config['ZfMinify']['cachePath'];
 
         if ($isEnabled === false) {
             return parent::toString($indent);
@@ -98,58 +100,45 @@ class HeadScript extends HeadScriptOriginal implements
             ) {
                 $itemSrcsToMinify[] = $item->attributes['src'];
             } else {
-                $itemsToNotMinify[] = $item;
+                $items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
             }
         }
 
         //$itemSrcsToMinify = array_unique($itemSrcsToMinify);
 
         if(count($itemSrcsToMinify) > 0) {
+
           $controller = new Minify_Controller_Files();
-          $options = $controller->setupSources(array('files' => $scriptFiles));
+          $options = $controller->setupSources(array('files' => $itemSrcsToMinify));
           $options = $controller->analyzeSources($options);
           $options = $controller->mixInDefaultOptions($options);
 
           $lastmodified = $options['lastModifiedTime'];
-          $filename = $this->generateFileName($scriptFiles);
-          $absolutefilename = $_SERVER['DOCUMENT_ROOT'] . $filename;
-          $lockfilename = $_SERVER['DOCUMENT_ROOT'] . $this->view->baseUrl($this->_targetFolder) . 'headscript-minify.lock';
+          $filename = $this->generateFileName($itemSrcsToMinify, $cachePath);
+          $lockfilename = $filename . '.lock';
 
-          if ((!file_exists($absolutefilename) || filemtime($absolutefilename) < $lastmodified) && (!file_exists($lockfilename) || time() > filemtime($lockfilename) + 600)) {
+          if ((!file_exists($filename) || filemtime($filename) < $lastmodified)
+              && (!file_exists($lockfilename) || time() > filemtime($lockfilename) + 600)
+          ){
                 file_put_contents($lockfilename, 'locked', LOCK_EX);
-              foreach ($controller->sources as $source) {
+                $pieces = array();
+                foreach ($controller->sources as $source) {
                     $pieces[] = $source->getContent();
                 }
-
-                if(!empty($item->source)) {
-                  $pieces[] = $item->source;
-                }
-
-                $content = implode($implodeSeparator, $pieces);
-                $content = FENGJUNK_Services_Google_Closure::compileJs($content);
-                file_put_contents($absolutefilename, $content, LOCK_EX);
+                $content = implode($this->getSeparator(), $pieces);
+                $content = JsMin::minify($content);
+                file_put_contents($filename, $content, LOCK_EX);
                 unlink($lockfilename);
           }
 
-          $item = new stdClass();
-          $item->type = 'text/javascript';
-          $item->attributes = array();
-          $item->attributes['src'] = $filename . '?v=' . $lastmodified;
-
-          $items[]	= $this->itemToString($item, $this->getIndent(), null, null);
+          $item = $this->createData('text/javascript', array('src' => $filename . '?v=' . $lastmodified));
+          array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
         }
-
-
-        //$items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
 
         return implode($this->getSeparator(), $items);
     }
 
-    protected function generateFileName($files) {
-        $config = $this->getServiceLocator()
-            ->getServiceLocator()
-            ->get('Config');
-        $cachePath = $config['ZfMinify']['cachePath'];
+    protected function generateFileName($files, $cachePath) {
         return $this->view->basePath($cachePath . substr(md5(implode('|', $files)), 0, 8) . '.js');
     }
 }
