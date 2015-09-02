@@ -5,7 +5,7 @@ use ZFMinify\View\Helper\HeadScript;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class CatalogControllerFactory implements FactoryInterface {
+class HeadScriptFactory implements FactoryInterface {
 
     /**
      * Create service
