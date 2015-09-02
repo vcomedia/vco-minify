@@ -13,6 +13,7 @@ namespace ZfMinify;
 
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
+use Zend\ModuleManager\Feature\ServiceProviderInterface;
 
 /**
  * Class Module
