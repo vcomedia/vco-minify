@@ -1,7 +1,7 @@
 <?php
-namespace ZFMinify\Factory;
+namespace ZfMinify\Factory;
 
-use ZFMinify\View\Helper\HeadScript;
+use ZfMinify\View\Helper\HeadScript;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
