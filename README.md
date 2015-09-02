@@ -3,8 +3,8 @@ This module extends the default headScript and headLink view helpers providing a
 
 ## Installation
 ### Composer
- *Install [Composer](http://getcomposer.org/doc/00-intro.md)
- *Install the module using Composer into your application's vendor directory. Add the following line to your `composer.json`.
+ * Install [Composer](http://getcomposer.org/doc/00-intro.md)
+ * Install the module using Composer into your application's vendor directory. Add the following line to your `composer.json`.
 
  ```json
  {
@@ -14,7 +14,7 @@ This module extends the default headScript and headLink view helpers providing a
  }
 ```
  * Execute ```composer update```
- *Enable the module in your ZF2 `application.config.php` file.
+ * Enable the module in your ZF2 `application.config.php` file.
 
  ```php
  return array(
@@ -23,7 +23,7 @@ This module extends the default headScript and headLink view helpers providing a
      )
  );
  ```
-  *Copy and paste the `aws.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and
+  * Copy and paste the `aws.local.php.dist` file to your `config/autoload` folder and customize it with your credentials and
   other configuration settings. Make sure to remove `.dist` from your file. Your `aws.local.php` might look something like
   the following:
 
