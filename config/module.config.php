@@ -1,4 +1,6 @@
 <?php
+namespace ZfMinify;
+
 /**
  * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
@@ -20,6 +22,16 @@ return array(
         'minifyJS' => array(
             'enabled' => false,
             'maxAge' => 86400
+        )
+    ),
+    'view_manager' => array(
+      'factories' => array(
+          'headscript' => 'ZfMinify\Factory\HeadScriptFactory'
+      )
+    ),
+    'service_manager' => array(
+        'invokables' => array(
+            'ZfMinify\Service\MinifyServiceInterface' => 'ZfMinify\Service\MinifyJsService'
         )
     )
 );

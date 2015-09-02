@@ -44,14 +44,14 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface {
         );
     }
 
-    /** @return array */
-    public function getViewHelperConfig()
-    {
-        return array(
-            'invokables' => array(
-                'headscript' => 'ZfMinify\View\Helper\HeadScript'
-                // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
-            )
-        );
-    }
+    // /** @return array */
+    // public function getViewHelperConfig()
+    // {
+    //     return array(
+    //         'invokables' => array(
+    //             'headscript' => 'ZfMinify\View\Helper\HeadScript'
+    //             // 'headstyle' => 'ZfMinify\View\Helper\HeadStyle'
+    //         )
+    //     );
+    // }
 }
