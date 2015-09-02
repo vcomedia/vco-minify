@@ -21,7 +21,9 @@ use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
  * @see ViewHelperProviderInterface
  * @package ZfMinify
  */
-class Module implements ConfigProviderInterface, ViewHelperProviderInterface {
+
+ //ViewHelperProviderInterface
+class Module implements ConfigProviderInterface {
 
     /**
      * @return array
