@@ -80,7 +80,7 @@ $this->headScript()->setAllowArbitraryAttributes(true)
  $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
  $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
  ```
-  * Each css media type (i.e., screen, print, all, ...) will generate a separate minified css file.
+ * Each css media type (i.e., 'screen', 'print', 'all', ...) will generate a separate minified css file.
 
 ## License
 The MIT License (MIT)
