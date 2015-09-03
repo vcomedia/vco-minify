@@ -164,6 +164,15 @@ class HeadScript extends HeadScriptOriginal {
                   throw new \Exception($e->getMessage());
                 }
                 unlink($lockFilePath);
+
+                //clean out old files
+                $flattened = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->minifyCachePath));
+                $files = new RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.css$/i');
+                foreach($files as $file) {
+                  if(filemtime($file) < time() - 86400 * 7) {
+                    unlink($file);
+                  }
+                }
           }
 
           $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath . '?v=' . $lastModifiedTime));
