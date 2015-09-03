@@ -132,22 +132,28 @@ class HeadLink extends HeadLinkOriginal {
 
       if(count($filesToMinify, COUNT_RECURSIVE) > 0) {
         foreach($filesToMinify as $media => $filePaths) {
-          $minifiedFileName = md5(implode('|', $filePaths)) . '.css';
+          $minifiedFileName = md5(implode('|', $filePaths)) . '.min.css';
           $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
           $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
           $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
 
-          if ((!file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime)
-              && (!file_exists($lockFilePath) || time() > filemtime($lockFilePath) + 600)   //ignore stray lock files
-          ){
-                file_put_contents($lockFilePath, 'locked', LOCK_EX);
+          $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
+          $isMinifiedFileBuildLocked = file_exists($lockFilePath);
+
+          if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
+              file_put_contents($lockFilePath, 'locked', LOCK_EX);
+              try {
                 $pieces = array();
                 foreach ($filePaths as $filePath) {
                     $pieces[] = $this->minifyService->minify(file_get_contents($filePath), array('docRoot' => $this->minifyDocRootPath, 'currentDir' => dirname($filePath)));
                 }
                 $content = implode($this->getSeparator(), $pieces);
                 file_put_contents($minifiedFilePath, $content, LOCK_EX);
+              } catch(\Exception $e) {
                 unlink($lockFilePath);
+                throw new \Exception($e->getMessage());
+              }
+              unlink($lockFilePath);
           }
 
           $item = $this->createData(

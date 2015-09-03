@@ -141,22 +141,28 @@ class HeadScript extends HeadScriptOriginal {
         }
 
         if(count($filesToMinify) > 0) {
-          $minifiedFileName = md5(implode('|', $filesToMinify)) . '.js';
+          $minifiedFileName = md5(implode('|', $filesToMinify)) . '.min.js';
           $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
           $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
           $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
 
-          if ((!file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime)
-              && (!file_exists($lockFilePath) || time() > filemtime($lockFilePath) + 600)   //ignore stray lock files
-          ){
+          $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
+          $isMinifiedFileBuildLocked = file_exists($lockFilePath);
+
+          if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
                 file_put_contents($lockFilePath, 'locked', LOCK_EX);
-                $pieces = array();
-                foreach ($filesToMinify as $filePath) {
-                    $pieces[] = file_get_contents($filePath);
+                try {
+                  $pieces = array();
+                  foreach ($filesToMinify as $filePath) {
+                      $pieces[] = file_get_contents($filePath);
+                  }
+                  $content = implode($this->getSeparator(), $pieces);
+                  $content = $this->minifyService->minify($content);
+                  file_put_contents($minifiedFilePath, $content, LOCK_EX);
+                } catch(\Exception $e) {
+                  unlink($lockFilePath);
+                  throw new \Exception($e->getMessage());
                 }
-                $content = implode($this->getSeparator(), $pieces);
-                $content = $this->minifyService->minify($content);
-                file_put_contents($minifiedFilePath, $content, LOCK_EX);
                 unlink($lockFilePath);
           }
 
