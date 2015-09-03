@@ -133,6 +133,9 @@ class HeadScript extends HeadScriptOriginal {
                 $filesToMinify[] = $itemSrcPath;
                 $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
             } else {
+                if(isset($item->attributes['minify'])) {
+                    unset($item->attributes['minify']);
+                }
                 $items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
             }
         }

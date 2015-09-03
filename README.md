@@ -42,30 +42,35 @@ This module extends the default headScript and headLink view helpers providing a
  );
   ```
 
- * Put styles and scripts into the Head section:
+ * Add styles and scripts to your layout file (can also be added through controller):
 
 ```php
 
-$this->headLink()->prependStylesheet($this->basePath('some/cssfile1.css'));
-$this->headLink()->prependStylesheet($this->basePath('some/cssfile2.css'));
-$this->headLink()->prependStylesheet($this->basePath('some/cssfile3.css'));
+echo $this->headLink()
+    ->prependStylesheet($this->basePath('some/cssfile1.css'), 'all')
+    ->prependStylesheet($this->basePath('some/cssfile2.css'), 'all')
+    ->prependStylesheet($this->basePath('some/cssfile3.css'), 'all');
 
-$this->headScript()->prependFile($this->basePath('some/jsfile1.js'));
-$this->headScript()->prependFile($this->basePath('some/jsfile2.js'));
-$this->headScript()->prependFile($this->basePath('some/jsfile3.js'));
+echo $this->headScript()
+    ->prependFile($this->basePath('some/jsfile1.js'))
+    ->prependFile($this->basePath('some/jsfile2.js'))
+    ->prependFile($this->basePath('some/jsfile3.js'));
 ```
 
 If minification is enabled, the output will look similar to:
 
 ```html
 
+<link href="/cache/2f262b5f19b4ea014c71b946e40a59d5.css?v=1441224700" media="all" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/cache/73df60b254e54f657ac5d9e7bf7bed4d.js?v=1440633356"></script>  
+
 ```
 
 ## Options
 It's possible to disable minification on a per file basis
 ```php
-$this->headScript()->setAllowArbitraryAttributes(true);
-$this->headScript()->prependFile($this->basePath('some/path.js'), 'text/javascript', array('minify' => false))
+$this->headScript()->setAllowArbitraryAttributes(true)
+    ->prependFile($this->basePath('some/path.js'), 'text/javascript', array('minify' => false));
 ```
 ## Notes
  * Any file that has a conditional will not be minified.

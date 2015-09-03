@@ -132,7 +132,7 @@ class HeadLink extends HeadLinkOriginal {
 
       if(count($filesToMinify, COUNT_RECURSIVE) > 0) {
         foreach($filesToMinify as $media => $filePaths) {
-          $minifiedFileName = md5(implode('|', $filePaths)) . '-' . $media . '.css';
+          $minifiedFileName = md5(implode('|', $filePaths)) . '.css';
           $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
           $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
           $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
