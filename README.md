@@ -46,9 +46,21 @@ This module extends the default headScript and headLink view helpers providing a
 
 ```php
 
-$this->headLink()->prependStylesheet($this->basePath('some/path.css'))
-$this->headScript()->prependFile($this->basePath('some/path.js'))
+$this->headLink()->prependStylesheet($this->basePath('some/cssfile1.css'));
+$this->headLink()->prependStylesheet($this->basePath('some/cssfile2.css'));
+$this->headLink()->prependStylesheet($this->basePath('some/cssfile3.css'));
+
+$this->headScript()->prependFile($this->basePath('some/jsfile1.js'));
+$this->headScript()->prependFile($this->basePath('some/jsfile2.js'));
+$this->headScript()->prependFile($this->basePath('some/jsfile3.js'));
 ```
+
+If minification is enabled, the output will look similar to:
+
+```html
+
+```
+
 ## Options
 It's possible to disable minification on a per file basis
 ```php
@@ -56,11 +68,14 @@ $this->headScript()->setAllowArbitraryAttributes(true);
 $this->headScript()->prependFile($this->basePath('some/path.js'), 'text/javascript', array('minify' => false))
 ```
 ## Notes
- * Any file that has a conditional will be ignored and not minified.
+ * Any file that has a conditional will not be minified.
+
  ```php
+
  $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
  $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
  ```
+  * Each css media type (i.e., screen, print, all, ...) will generate a separate minified css file.
 
 ## License
 The MIT License (MIT)
