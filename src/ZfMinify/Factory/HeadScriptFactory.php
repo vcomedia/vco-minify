@@ -17,7 +17,8 @@ class HeadScriptFactory implements FactoryInterface {
     public function createService (ServiceLocatorInterface $serviceLocator) {
         $realServiceLocator = $serviceLocator->getServiceLocator();
         $minifyJsService = $realServiceLocator->get('ZfMinify\Service\MinifyJsService');
+        $config = $realServiceLocator->get('Config');
 
-        return new HeadScript($minifyJsService);
+        return new HeadScript($minifyJsService, $config['ZfMinify']);
     }
 }

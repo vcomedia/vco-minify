@@ -11,8 +11,6 @@
 
 namespace ZfMinify\View\Helper;
 
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\View\Helper\HeadScript as HeadScriptOriginal;
 use ZfMinify\Service\MinifyServiceInterface;
 
@@ -20,16 +18,44 @@ use ZfMinify\Service\MinifyServiceInterface;
  * Class HeadScript
  *
  * @package ZfMinify\View\Helper
- * @see ServiceLocatorAwareInterface
  */
-class HeadScript extends HeadScriptOriginal implements
-    ServiceLocatorAwareInterface {
+class HeadScript extends HeadScriptOriginal {
 
     /**
      *
-     * @var ServiceLocatorInterface
+     * @var arrray
      */
-    protected $serviceLocator;
+    protected $minifyConfig;
+
+    /**
+     *
+     * @var bool
+     */
+    protected $minifyEnabled;
+
+    /**
+     *
+     * @var string
+     */
+    protected $minifyDocRootDir;
+
+    /**
+     *
+     * @var string
+     */
+    protected $minifyDocRootPath;
+
+    /**
+     *
+     * @var string
+     */
+    protected $minifyCacheDir;
+
+    /**
+     *
+     * @var string
+     */
+    protected $minifyCachePath;
 
     /**
      *
@@ -42,29 +68,25 @@ class HeadScript extends HeadScriptOriginal implements
      *
      * @param
      */
-    public function __construct(MinifyServiceInterface $minifyService)
+    public function __construct(MinifyServiceInterface $minifyService, $config)
     {
         $this->minifyService = $minifyService;
+        $this->minifyConfig = $config;
+        $this->minifyEnabled = $this->minifyConfig['minifyJS']['enabled'];
+        $this->minifyDocRootDir = trim($this->minifyConfig['docRootDir'],'/\ ');
+        $this->minifyDocRootPath = getcwd() . '/' . $this->minifyDocRootDir . '/';
+        $this->minifyCacheDir = trim($this->minifyConfig['cacheDir'],'/\ ');
+        $this->minifyCachePath = $this->minifyDocRootPath . $this->minifyCacheDir;
+
+        if(!file_exists($this->minifyCachePath) && mkdir($this->minifyCachePath, 0755, true) === false) {
+          throw new \Exception("Cache dir does not exist and could not be created - '$this->minifyCachePath'");
+        }
+
+        if (!is_writable($this->minifyCachePath)) {
+          throw new \Exception("Cache path not writable - '$this->minifyCachePath'");
+        }
+
         parent::__construct();
-    }
-
-    /**
-     * Set serviceManager instance
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return void
-     */
-    public function setServiceLocator (ServiceLocatorInterface $serviceLocator) {
-        $this->serviceLocator = $serviceLocator;
-    }
-
-    /**
-     * Retrieve serviceManager instance
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator () {
-        return $this->serviceLocator;
     }
 
     /**
@@ -75,26 +97,9 @@ class HeadScript extends HeadScriptOriginal implements
      * @return string
      */
     public function toString ($indent = null) {
-        $config = $this->getServiceLocator()
-            ->getServiceLocator()
-            ->get('Config');
-        $isMinifyEnabled = $config['ZfMinify']['minifyJS']['enabled'];
-        $docRootDir = trim($config['ZfMinify']['docRootDir'],'/\ ');
-        $docRootPath = getcwd() . '/' . $docRootDir . '/';
-        $cacheDir = trim($config['ZfMinify']['cacheDir'],'/\ ');
-        $cachePath = $docRootPath . $cacheDir;
-
-        if ($isMinifyEnabled === false || !is_writable($cachePath)) {
+        if ($this->minifyEnabled === false) {
             return parent::toString($indent);
         }
-
-        //TODO: move below excecption outside of toString() method
-        // if(!file_exists($cachePath)) {
-        //   mkdir($cachePath, 0755);
-        // }
-        // if (!is_writable($cachePath)) {
-        //     throw new \Exception("Cache path not writable '$cachePath'")
-        // }
 
         $indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
 
@@ -117,7 +122,7 @@ class HeadScript extends HeadScriptOriginal implements
                 continue;
             }
 
-            $itemSrcPath = (!empty($item->attributes) && !empty($item->attributes['src'])) ? $docRootPath . trim($item->attributes['src'],'/\ ') : null;
+            $itemSrcPath = (!empty($item->attributes) && !empty($item->attributes['src'])) ? $this->minifyDocRootPath . trim($item->attributes['src'],'/\ ') : null;
 
             if($item->type === 'text/javascript'
                 && $itemSrcPath
@@ -134,8 +139,8 @@ class HeadScript extends HeadScriptOriginal implements
 
         if(count($filesToMinify) > 0) {
           $minifiedFileName = md5(implode('|', $filesToMinify)) . '.js';
-          $minifiedFileBasePath = $this->view->basePath($cacheDir . '/' . $minifiedFileName);
-          $minifiedFilePath = $docRootPath . trim($minifiedFileBasePath, '\/ ');
+          $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
+          $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
           $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
 
           if ((!file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime)

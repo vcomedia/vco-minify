@@ -17,7 +17,8 @@ class HeadLinkFactory implements FactoryInterface {
     public function createService (ServiceLocatorInterface $serviceLocator) {
         $realServiceLocator = $serviceLocator->getServiceLocator();
         $minifyJsService = $realServiceLocator->get('ZfMinify\Service\MinifyCssService');
+        $config = $realServiceLocator->get('Config');
 
-        return new HeadLink($minifyJsService);
+        return new HeadLink($minifyJsService, $config['ZfMinify']);
     }
 }
