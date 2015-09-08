@@ -1,11 +1,11 @@
 <?php
-namespace ZfMinify\Factory;
+namespace VcoZfMinify\Factory;
 
-use ZfMinify\View\Helper\HeadLink;
+use VcoZfMinify\View\Helper\HeadScript;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class HeadLinkFactory implements FactoryInterface {
+class HeadScriptFactory implements FactoryInterface {
 
     /**
      * Create service
@@ -16,9 +16,9 @@ class HeadLinkFactory implements FactoryInterface {
      */
     public function createService (ServiceLocatorInterface $serviceLocator) {
         $realServiceLocator = $serviceLocator->getServiceLocator();
-        $minifyJsService = $realServiceLocator->get('ZfMinify\Service\MinifyCssService');
+        $minifyJsService = $realServiceLocator->get('VcoZfMinify\Service\MinifyJsService');
         $config = $realServiceLocator->get('Config');
 
-        return new HeadLink($minifyJsService, $config['ZfMinify']);
+        return new HeadScript($minifyJsService, $config['VcoZfMinify']);
     }
 }

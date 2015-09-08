@@ -1,23 +1,23 @@
 <?php
 /**
- * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
+ * VcoZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
  * @category Module
- * @package  ZfMinify
+ * @package  VcoZfMinify
  * @author   Vahag Dudukgian (valeeum)
  * @license  http://opensource.org/licenses/MIT The MIT License (MIT)
- * @link     http://github.com/vcomedia/zf-minify/
+ * @link     http://github.com/vcomedia/vco-zf-minify/
  */
 
-namespace ZfMinify\View\Helper;
+namespace VcoZfMinify\View\Helper;
 
 use Zend\View\Helper\HeadScript as HeadScriptOriginal;
-use ZfMinify\Service\MinifyServiceInterface;
+use VcoZfMinify\Service\MinifyServiceInterface;
 
 /**
  * Class HeadScript
  *
- * @package ZfMinify\View\Helper
+ * @package VcoZfMinify\View\Helper
  */
 class HeadScript extends HeadScriptOriginal {
 

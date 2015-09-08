@@ -1,15 +1,15 @@
 <?php
 /**
- * ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
+ * VcoZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
  *
  * @category Module
- * @package  ZfMinify
+ * @package  VcoZfMinify
  * @author   Vahag Dudukgian (valeeum)
  * @license  http://opensource.org/licenses/MIT The MIT License (MIT)
- * @link     http://github.com/vcomedia/zf-minify/
+ * @link     http://github.com/vcomedia/vco-zf-minify/
  */
 
-namespace ZfMinify;
+namespace VcoZfMinify;
 
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
@@ -20,7 +20,7 @@ use Zend\ModuleManager\Feature\ServiceProviderInterface;
  *
  * @see ConfigProviderInterface
  * @see ViewHelperProviderInterface
- * @package ZfMinify
+ * @package VcoZfMinify
  */
 
 class Module implements ConfigProviderInterface, ViewHelperProviderInterface, ServiceProviderInterface {
@@ -51,8 +51,8 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
     {
         return array(
             'factories' => array(
-                'headscript' => 'ZfMinify\Factory\HeadScriptFactory',
-                'headlink' => 'ZfMinify\Factory\HeadLinkFactory'
+                'headscript' => 'VcoZfMinify\Factory\HeadScriptFactory',
+                'headlink' => 'VcoZfMinify\Factory\HeadLinkFactory'
             )
         );
     }
@@ -61,8 +61,8 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
     public function getServiceConfig() {
         return array(
             'invokables' => array(
-                'ZfMinify\Service\MinifyJsService' => 'ZfMinify\Service\MinifyJsService',
-                'ZfMinify\Service\MinifyCssService' => 'ZfMinify\Service\MinifyCssService'
+                'VcoZfMinify\Service\MinifyJsService' => 'VcoZfMinify\Service\MinifyJsService',
+                'VcoZfMinify\Service\MinifyCssService' => 'VcoZfMinify\Service\MinifyCssService'
             )
         );
     }

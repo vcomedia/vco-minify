@@ -1,4 +1,4 @@
-## ZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
+## VcoZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
 This module extends the default headScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly.
 
 ## Installation
@@ -9,7 +9,7 @@ This module extends the default headScript and headLink view helpers providing a
  ```json
  {
     "require": {
-        "vcomedia/zf-minify": "dev-master"
+        "vcomedia/vco-zf-minify": "dev-master"
     }
  }
 ```
@@ -19,17 +19,17 @@ This module extends the default headScript and headLink view helpers providing a
  ```php
  return array(
      'modules' => array(
-         'ZfMinify'
+         'VcoZfMinify'
      )
  );
  ```
- * Copy and paste the `zf-minify/config/module.zf-minify.local.php.dist` file to your `config/autoload` folder and customize it with your configuration settings. Make sure to remove `.dist` from your file. Your `module.zf-minify.local.php` might look something like the following:
+ * Copy and paste the `vco-zf-minify/config/module.vco-zf-minify.local.php.dist` file to your `config/autoload` folder and customize it with your configuration settings. Make sure to remove `.dist` from your file. Your `module.vco-zf-minify.local.php` might look something like the following:
 
   ```php
  <?php
 
  return array(
-     'ZfMinify' => array(
+     'VcoZfMinify' => array(
          'docRootDir' => 'public/',  //path to docRoot relative to app root - (preceeding and trailing slashes ignored)
          'cacheDir' => 'cache/',      //cache folder in documentRoot - (preceeding and trailing slashes ignored)
          'minifyCSS' => array(

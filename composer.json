@@ -1,8 +1,8 @@
 {
-    "name": "vcomedia/zf-minify",
+    "name": "vcomedia/vco-zf-minify",
     "description": "Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.",
     "type": "library",
-    "homepage": "http://github.com/vcomedia/zf-minify",
+    "homepage": "http://github.com/vcomedia/vco-zf-minify",
     "license": "MIT",
     "keywords": [
         "zf2",
@@ -22,7 +22,7 @@
         "mrclay/minify": ">=2.2"
     },
     "autoload": {
-        "psr-0": {"ZfMinify": "src/"},
+        "psr-0": {"VcoZfMinify": "src/"},
         "classmap": ["Module.php"]
     }
 }

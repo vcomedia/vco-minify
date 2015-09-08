@@ -1,5 +1,5 @@
 <?php
-namespace ZfMinify\Service;
+namespace VcoZfMinify\Service;
 
 use JSMin;
 
