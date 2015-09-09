@@ -1,5 +1,5 @@
-## VcoZfMinify - Zend Framework 2 headScript and headLink view helper wrappers to minify CSS & JS.
-This module extends the default headScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly.
+## VcoZfMinify - Zend Framework 2 headScript, inlineScript and headLink view helper wrappers to minify CSS & JS.
+This module extends the default headScript, inlineScript and headLink view helpers providing a simple means of adding CSS/JS minification capabilities to your Zend Framework 2 based applications.  Currently, [Steve (mrclay) Clay's Minify](https://github.com/mrclay/minify) library is used for all minification.  However, the minification service factory can be overriden to offer alternative minification services (i.e., Google's Closure Compiler) which we plan on including as an option shortly.
 
 ## Installation
 ### Composer
@@ -52,6 +52,11 @@ echo $this->headLink()
     ->prependStylesheet($this->basePath('some/cssfile3.css'), 'all');
 
 echo $this->headScript()
+    ->prependFile($this->basePath('some/jsfile1.js'))
+    ->prependFile($this->basePath('some/jsfile2.js'))
+    ->prependFile($this->basePath('some/jsfile3.js'));
+    
+echo $this->inlineScript()
     ->prependFile($this->basePath('some/jsfile1.js'))
     ->prependFile($this->basePath('some/jsfile2.js'))
     ->prependFile($this->basePath('some/jsfile3.js'));
