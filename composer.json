@@ -19,7 +19,8 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zendframework": ">=2.2",
-        "mrclay/minify": ">=2.2"
+        "mrclay/minify": ">=2.2",
+        "vcomedia/vco-zf-mediapath": "dev-master"
     },
     "autoload": {
         "psr-0": {"VcoZfMinify": "src/"},
