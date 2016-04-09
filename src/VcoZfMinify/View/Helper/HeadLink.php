@@ -228,13 +228,14 @@ class HeadLink extends HeadLinkOriginal {
                 );
             }
 
-            die(print_r($args));
             if (is_array($args[0])) {
                 $item = $this->createData($args[0]);
             } else {
                 $dataMethod = 'createData' . $type;
                 $item       = $this->$dataMethod($args);
             }
+            
+            die(print_r($item));
 
             if ($item) {
                 if ('offsetSet' == $action) {
