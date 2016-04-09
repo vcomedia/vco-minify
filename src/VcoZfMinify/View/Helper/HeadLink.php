@@ -236,7 +236,7 @@ class HeadLink extends HeadLinkOriginal {
             }
             
             if(isset($item->href)) {
-                $content = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
+                $item->href = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
             }
 
             if ($item) {
