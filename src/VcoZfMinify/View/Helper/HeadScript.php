@@ -235,7 +235,7 @@ class HeadScript extends HeadScriptOriginal {
                     break;
                 case 'file':
                 default:
-                    $content = $this->view->mediapath($content);
+                    $content = ($this->startsWith($content, '//') || $this->startsWith($content, 'http') || $this->startsWith($content, 'ftp')) ? $content : $this->view->mediapath($content);
                     if (!$this->isDuplicate($content)) {
                         $attrs['src'] = $content;
                         $item = $this->createData($type, $attrs);
@@ -252,5 +252,9 @@ class HeadScript extends HeadScriptOriginal {
         }
 
         return parent::__call($method, $args);
+    }
+    
+    private function startsWith($haystack, $needle) {
+        return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
     }
 }

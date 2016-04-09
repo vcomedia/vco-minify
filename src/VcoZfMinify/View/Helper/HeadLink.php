@@ -170,7 +170,6 @@ class HeadLink extends HeadLinkOriginal {
               'type'=>'text/css',
               'rel' => 'stylesheet',
               'media' => $media,
-              //'href' => $minifiedFileBasePath . '?v=' . $lastModifiedTime,
               'href' => $this->view->mediaPath($minifiedFileBasePath, false),
               'conditionalStylesheet' => false
             )
