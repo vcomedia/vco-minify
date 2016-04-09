@@ -252,4 +252,8 @@ class HeadLink extends HeadLinkOriginal {
 
         return parent::__call($method, $args);
     }
+    
+    private function startsWith($haystack, $needle) {
+        return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
+    }
 }
