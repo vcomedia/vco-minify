@@ -235,7 +235,9 @@ class HeadLink extends HeadLinkOriginal {
                 $item       = $this->$dataMethod($args);
             }
             
-            die(print_r($item));
+            if(isset($item->href)) {
+                $content = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
+            }
 
             if ($item) {
                 if ('offsetSet' == $action) {
