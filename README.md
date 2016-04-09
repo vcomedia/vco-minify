@@ -47,19 +47,19 @@ This module extends the default headScript, inlineScript and headLink view helpe
 ```php
 
 echo $this->headLink()
-    ->prependStylesheet($this->basePath('some/cssfile1.css'), 'all')
-    ->prependStylesheet($this->basePath('some/cssfile2.css'), 'all')
-    ->prependStylesheet($this->basePath('some/cssfile3.css'), 'all');
+    ->prependStylesheet('some/cssfile1.css', 'all')
+    ->prependStylesheet('some/cssfile2.css', 'all')
+    ->prependStylesheet('some/cssfile3.css', 'all');
 
 echo $this->headScript()
-    ->prependFile($this->basePath('some/jsfile1.js'))
-    ->prependFile($this->basePath('some/jsfile2.js'))
-    ->prependFile($this->basePath('some/jsfile3.js'));
+    ->prependFile('some/jsfile1.js')
+    ->prependFile('some/jsfile2.js')
+    ->prependFile('some/jsfile3.js');
     
 echo $this->inlineScript()
-    ->prependFile($this->basePath('some/jsfile1.js'))
-    ->prependFile($this->basePath('some/jsfile2.js'))
-    ->prependFile($this->basePath('some/jsfile3.js'));
+    ->prependFile('some/jsfile1.js')
+    ->prependFile('some/jsfile2.js')
+    ->prependFile('some/jsfile3.js');
 ```
 
 If minification is enabled, the output will look similar to:
@@ -75,14 +75,14 @@ If minification is enabled, the output will look similar to:
 It's possible to disable minification on a per file basis
 ```php
 $this->headScript()->setAllowArbitraryAttributes(true)
-    ->prependFile($this->basePath('some/path.js'), 'text/javascript', array('minify' => false));
+    ->prependFile('some/path.js', 'text/javascript', array('minify' => false));
 ```
 ## Notes
  * Any file that has a conditional will not be minified.
 
  ```php
 
- $this->headScript()->appendFile($this->basePath('js/ie6.js'), 'text/javascript', array('conditional' => 'IE6',));
+ $this->headScript()->appendFile('js/ie6.js', 'text/javascript', array('conditional' => 'IE6',));
  $this->headLink()->appendStylesheet('/css/ie6.css', 'screen', 'IE6');
  ```
  * Each css media type (i.e., 'screen', 'print', 'all', ...) will generate a separate minified css file.
