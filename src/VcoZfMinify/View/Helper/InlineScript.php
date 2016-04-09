@@ -167,7 +167,7 @@ class InlineScript extends InlineScriptOriginal {
 
                 //clean out old files
                 $flattened = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->minifyCachePath));
-                $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.css$/i');
+                $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.js$/i');
                 foreach($files as $file) {
                   if(filemtime($file) < time() - 86400 * 7) {
                     unlink($file);
@@ -175,7 +175,7 @@ class InlineScript extends InlineScriptOriginal {
                 }
           }
 
-          $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath . '?v=' . $lastModifiedTime));
+          $item = $this->createData('text/javascript', array('src' => $this->view->mediaPath($minifiedFileBasePath, false)));
           array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
         }
 
