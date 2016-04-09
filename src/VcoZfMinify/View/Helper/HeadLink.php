@@ -180,4 +180,73 @@ class HeadLink extends HeadLinkOriginal {
 
       return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
     }
+    
+    /**
+     * Overload method access
+     *
+     * Items that may be added in the future:
+     * - Navigation?  need to find docs on this
+     *   - public function appendStart()
+     *   - public function appendContents()
+     *   - public function appendPrev()
+     *   - public function appendNext()
+     *   - public function appendIndex()
+     *   - public function appendEnd()
+     *   - public function appendGlossary()
+     *   - public function appendAppendix()
+     *   - public function appendHelp()
+     *   - public function appendBookmark()
+     * - Other?
+     *   - public function appendCopyright()
+     *   - public function appendChapter()
+     *   - public function appendSection()
+     *   - public function appendSubsection()
+     *
+     * @param  mixed $method
+     * @param  mixed $args
+     * @throws Exception\BadMethodCallException
+     * @return void
+     */
+    public function __call($method, $args)
+    {
+        if (preg_match('/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<type>Stylesheet|Alternate|Prev|Next)$/', $method, $matches)) {
+            $argc   = count($args);
+            $action = $matches['action'];
+            $type   = $matches['type'];
+            $index  = null;
+
+            if ('offsetSet' == $action) {
+                if (0 < $argc) {
+                    $index = array_shift($args);
+                    --$argc;
+                }
+            }
+
+            if (1 > $argc) {
+                throw new Exception\BadMethodCallException(
+                    sprintf('%s requires at least one argument', $method)
+                );
+            }
+
+            die(print_r($args));
+            if (is_array($args[0])) {
+                $item = $this->createData($args[0]);
+            } else {
+                $dataMethod = 'createData' . $type;
+                $item       = $this->$dataMethod($args);
+            }
+
+            if ($item) {
+                if ('offsetSet' == $action) {
+                    $this->offsetSet($index, $item);
+                } else {
+                    $this->$action($item);
+                }
+            }
+
+            return $this;
+        }
+
+        return parent::__call($method, $args);
+    }
 }
