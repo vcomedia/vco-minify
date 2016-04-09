@@ -185,8 +185,7 @@ class HeadLink extends HeadLinkOriginal {
     {
         if(isset($item->href)) {
             $item->href = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
-        }
-            
+        }  
         return parent::itemToString($item);
     }
     

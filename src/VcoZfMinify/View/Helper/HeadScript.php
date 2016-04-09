@@ -175,7 +175,7 @@ class HeadScript extends HeadScriptOriginal {
                 }
           }
 
-          $item = $this->createData('text/javascript', array('src' => $this->view->mediaPath($minifiedFileBasePath, false)));
+          $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath));
           array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
         }
 
@@ -183,75 +183,19 @@ class HeadScript extends HeadScriptOriginal {
     }
     
     /**
-     * Overload method access
+     * Create script HTML
      *
-     * @param  string $method Method to call
-     * @param  array  $args   Arguments of method
-     * @throws Exception\BadMethodCallException if too few arguments or invalid method
-     * @return HeadScript
+     * @param  mixed  $item        Item to convert
+     * @param  string $indent      String to add before the item
+     * @param  string $escapeStart Starting sequence
+     * @param  string $escapeEnd   Ending sequence
+     * @return string
      */
-    public function __call($method, $args)
-    {
-        if (preg_match('/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<mode>File|Script)$/', $method, $matches)) {
-            if (1 > count($args)) {
-                throw new Exception\BadMethodCallException(sprintf(
-                    'Method "%s" requires at least one argument',
-                    $method
-                ));
-            }
-
-            $action  = $matches['action'];
-            $mode    = strtolower($matches['mode']);
-            $type    = 'text/javascript';
-            $attrs   = [];
-
-            if ('offsetSet' == $action) {
-                $index = array_shift($args);
-                if (1 > count($args)) {
-                    throw new Exception\BadMethodCallException(sprintf(
-                        'Method "%s" requires at least two arguments, an index and source',
-                        $method
-                    ));
-                }
-            }
-
-            $content = $args[0];
-
-            if (isset($args[1])) {
-                $type = (string) $args[1];
-            }
-            if (isset($args[2])) {
-                $attrs = (array) $args[2];
-            }
-
-            switch ($mode) {
-                case 'script':
-                    $item = $this->createData($type, $attrs, $content);
-                    if ('offsetSet' == $action) {
-                        $this->offsetSet($index, $item);
-                    } else {
-                        $this->$action($item);
-                    }
-                    break;
-                case 'file':
-                default:
-                    $content = ($this->startsWith($content, '//') || $this->startsWith($content, 'http') || $this->startsWith($content, 'ftp')) ? $content : $this->view->mediapath($content);
-                    if (!$this->isDuplicate($content)) {
-                        $attrs['src'] = $content;
-                        $item = $this->createData($type, $attrs);
-                        if ('offsetSet' == $action) {
-                            $this->offsetSet($index, $item);
-                        } else {
-                            $this->$action($item);
-                        }
-                    }
-                    break;
-            }
-
-            return $this;
+    public function itemToString($item, $indent, $escapeStart, $escapeEnd) {
+        if(isset($item->src)) {            
+            $item->src = ($this->startsWith($item->src, '//') || $this->startsWith($item->src, 'http') || $this->startsWith($item->src, 'ftp')) ? $item->src : $this->view->mediapath($item->src);
         }
-
-        return parent::__call($method, $args);
+        parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
     }
     
     private function startsWith($haystack, $needle) {
