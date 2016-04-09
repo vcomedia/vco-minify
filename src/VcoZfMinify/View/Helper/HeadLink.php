@@ -170,7 +170,7 @@ class HeadLink extends HeadLinkOriginal {
               'type'=>'text/css',
               'rel' => 'stylesheet',
               'media' => $media,
-              'href' => $this->view->mediaPath($minifiedFileBasePath, false),
+              'href' => $minifiedFileBasePath,
               'conditionalStylesheet' => false
             )
           );
@@ -181,76 +181,53 @@ class HeadLink extends HeadLinkOriginal {
       return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
     }
     
-    /**
-     * Overload method access
-     *
-     * Items that may be added in the future:
-     * - Navigation?  need to find docs on this
-     *   - public function appendStart()
-     *   - public function appendContents()
-     *   - public function appendPrev()
-     *   - public function appendNext()
-     *   - public function appendIndex()
-     *   - public function appendEnd()
-     *   - public function appendGlossary()
-     *   - public function appendAppendix()
-     *   - public function appendHelp()
-     *   - public function appendBookmark()
-     * - Other?
-     *   - public function appendCopyright()
-     *   - public function appendChapter()
-     *   - public function appendSection()
-     *   - public function appendSubsection()
-     *
-     * @param  mixed $method
-     * @param  mixed $args
-     * @throws Exception\BadMethodCallException
-     * @return void
-     */
-    public function __call($method, $args)
+    public function itemToString(stdClass $item)
     {
-        if (preg_match('/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<type>Stylesheet|Alternate|Prev|Next)$/', $method, $matches)) {
-            $argc   = count($args);
-            $action = $matches['action'];
-            $type   = $matches['type'];
-            $index  = null;
-
-            if ('offsetSet' == $action) {
-                if (0 < $argc) {
-                    $index = array_shift($args);
-                    --$argc;
-                }
-            }
-
-            if (1 > $argc) {
-                throw new Exception\BadMethodCallException(
-                    sprintf('%s requires at least one argument', $method)
-                );
-            }
-
-            if (is_array($args[0])) {
-                $item = $this->createData($args[0]);
-            } else {
-                $dataMethod = 'createData' . $type;
-                $item       = $this->$dataMethod($args);
-            }
+        if(isset($item->href)) {
+            $item->href = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
+        }
             
-            if(isset($item->href)) {
-                $item->href = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
-            }
+        $attributes = (array) $item;
+        $link       = '<link';
 
-            if ($item) {
-                if ('offsetSet' == $action) {
-                    $this->offsetSet($index, $item);
+        foreach ($this->itemKeys as $itemKey) {
+            if (isset($attributes[$itemKey])) {
+                if (is_array($attributes[$itemKey])) {
+                    foreach ($attributes[$itemKey] as $key => $value) {
+                        $link .= sprintf(' %s="%s"', $key, ($this->autoEscape) ? $this->escape($value) : $value);
+                    }
                 } else {
-                    $this->$action($item);
+                    $link .= sprintf(
+                        ' %s="%s"',
+                        $itemKey,
+                        ($this->autoEscape) ? $this->escape($attributes[$itemKey]) : $attributes[$itemKey]
+                    );
                 }
             }
-
-            return $this;
         }
 
-        return parent::__call($method, $args);
+        if (method_exists($this->view, 'plugin')) {
+            $link .= ($this->view->plugin('doctype')->isXhtml()) ? ' />' : '>';
+        } else {
+            $link .= ' />';
+        }
+
+        if (($link == '<link />') || ($link == '<link>')) {
+            return '';
+        }
+
+        if (isset($attributes['conditionalStylesheet'])
+            && !empty($attributes['conditionalStylesheet'])
+            && is_string($attributes['conditionalStylesheet'])
+        ) {
+            // inner wrap with comment end and start if !IE
+            if (str_replace(' ', '', $attributes['conditionalStylesheet']) === '!IE') {
+                $link = '<!-->' . $link . '<!--';
+            }
+            $link = '<!--[if ' . $attributes['conditionalStylesheet'] . ']>' . $link . '<![endif]-->';
+        }
+
+        return $link;
     }
     
     private function startsWith($haystack, $needle) {
