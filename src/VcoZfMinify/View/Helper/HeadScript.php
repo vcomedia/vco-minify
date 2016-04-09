@@ -181,4 +181,76 @@ class HeadScript extends HeadScriptOriginal {
 
         return implode($this->getSeparator(), $items);
     }
+    
+    /**
+     * Overload method access
+     *
+     * @param  string $method Method to call
+     * @param  array  $args   Arguments of method
+     * @throws Exception\BadMethodCallException if too few arguments or invalid method
+     * @return HeadScript
+     */
+    public function __call($method, $args)
+    {
+        if (preg_match('/^(?P<action>set|(ap|pre)pend|offsetSet)(?P<mode>File|Script)$/', $method, $matches)) {
+            if (1 > count($args)) {
+                throw new Exception\BadMethodCallException(sprintf(
+                    'Method "%s" requires at least one argument',
+                    $method
+                ));
+            }
+
+            $action  = $matches['action'];
+            $mode    = strtolower($matches['mode']);
+            $type    = 'text/javascript';
+            $attrs   = [];
+
+            if ('offsetSet' == $action) {
+                $index = array_shift($args);
+                if (1 > count($args)) {
+                    throw new Exception\BadMethodCallException(sprintf(
+                        'Method "%s" requires at least two arguments, an index and source',
+                        $method
+                    ));
+                }
+            }
+
+            $content = $args[0];
+
+            if (isset($args[1])) {
+                $type = (string) $args[1];
+            }
+            if (isset($args[2])) {
+                $attrs = (array) $args[2];
+            }
+
+            switch ($mode) {
+                case 'script':
+                    $item = $this->createData($type, $attrs, $content);
+                    if ('offsetSet' == $action) {
+                        $this->offsetSet($index, $item);
+                    } else {
+                        $this->$action($item);
+                    }
+                    break;
+                case 'file':
+                default:
+                    $content = $this->view->mediapath($content);
+                    if (!$this->isDuplicate($content)) {
+                        $attrs['src'] = $content;
+                        $item = $this->createData($type, $attrs);
+                        if ('offsetSet' == $action) {
+                            $this->offsetSet($index, $item);
+                        } else {
+                            $this->$action($item);
+                        }
+                    }
+                    break;
+            }
+
+            return $this;
+        }
+
+        return parent::__call($method, $args);
+    }
 }
