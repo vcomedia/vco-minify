@@ -192,10 +192,11 @@ class HeadScript extends HeadScriptOriginal {
      * @return string
      */
     public function itemToString($item, $indent, $escapeStart, $escapeEnd) {
-        if(isset($item->src)) {            
-            $item->src = ($this->startsWith($item->src, '//') || $this->startsWith($item->src, 'http') || $this->startsWith($item->src, 'ftp')) ? $item->src : $this->view->mediapath($item->src);
+        if(isset($item->attributes) && !empty($item->attributes['src'])) {            
+            $src = $item->attributes['src'];
+            $item->attributes['src'] = ($this->startsWith($src, '//') || $this->startsWith($src, 'http') || $this->startsWith($src, 'ftp')) ? $src : $this->view->mediapath($src);
         }
-        parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
+        return parent::itemToString($item, $indent, $escapeStart, $escapeEnd);
     }
     
     private function startsWith($haystack, $needle) {
