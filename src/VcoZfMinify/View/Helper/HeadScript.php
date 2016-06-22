@@ -97,89 +97,93 @@ class HeadScript extends HeadScriptOriginal {
      * @return string
      */
     public function toString ($indent = null) {
-        if ($this->minifyEnabled === false) {
-            return parent::toString($indent);
-        }
-
-        $indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
-
-        if ($this->view) {
-            $useCdata = $this->view->plugin('doctype')->isXhtml();
-        } else {
-            $useCdata = $this->useCdata;
-        }
-
-        $escapeStart = ($useCdata) ? '//<![CDATA[' : '//<!--';
-        $escapeEnd = ($useCdata) ? '//]]>' : '//-->';
-
-        $filesToMinify = array();
-        $lastModifiedTime = 0;
-
-        $items = [];
-        $this->getContainer()->ksort();
-        foreach ($this as $item) {
-            if (! $this->isValid($item)) {
-                continue;
+        try {
+            if ($this->minifyEnabled === false) {
+                return parent::toString($indent);
             }
-
-            $itemSrcPath = (!empty($item->attributes) && !empty($item->attributes['src'])) ? $this->minifyDocRootPath . trim($item->attributes['src'],'/\ ') : null;
-
-            if($item->type === 'text/javascript'
-                && $itemSrcPath
-                && file_exists($itemSrcPath)
-                && empty($item->attributes['conditional'])
-                && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
-            ) {
-                $filesToMinify[] = $itemSrcPath;
-                $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
+    
+            $indent = (null !== $indent) ? $this->getWhitespace($indent) : $this->getIndent();
+    
+            if ($this->view) {
+                $useCdata = $this->view->plugin('doctype')->isXhtml();
             } else {
-                if(isset($item->attributes['minify'])) {
-                    unset($item->attributes['minify']);
-                }
-                $items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
+                $useCdata = $this->useCdata;
             }
-        }
-
-        if(count($filesToMinify) > 0) {
-          $minifiedFileName = md5(implode('|', $filesToMinify)) . '.min.js';
-          $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
-          $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
-          $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
-
-          $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
-          $isMinifiedFileBuildLocked = file_exists($lockFilePath);
-
-          if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
-                file_put_contents($lockFilePath, 'locked', LOCK_EX);
-                try {
-                  $pieces = array();
-                  foreach ($filesToMinify as $filePath) {
-                      $pieces[] = file_get_contents($filePath);
-                  }
-                  $content = implode($this->getSeparator(), $pieces);
-                  $content = $this->minifyService->minify($content);
-                  file_put_contents($minifiedFilePath, $content, LOCK_EX);
-                } catch(\Exception $e) {
-                  unlink($lockFilePath);
-                  throw new \Exception($e->getMessage());
+    
+            $escapeStart = ($useCdata) ? '//<![CDATA[' : '//<!--';
+            $escapeEnd = ($useCdata) ? '//]]>' : '//-->';
+    
+            $filesToMinify = array();
+            $lastModifiedTime = 0;
+    
+            $items = [];
+            $this->getContainer()->ksort();
+            foreach ($this as $item) {
+                if (! $this->isValid($item)) {
+                    continue;
                 }
-                unlink($lockFilePath);
-
-                //clean out old files
-                $flattened = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->minifyCachePath));
-                $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.js$/i');
-                foreach($files as $file) {
-                  if(filemtime($file) < time() - 86400 * 7) {
-                    unlink($file);
-                  }
+    
+                $itemSrcPath = (!empty($item->attributes) && !empty($item->attributes['src'])) ? $this->minifyDocRootPath . trim($item->attributes['src'],'/\ ') : null;
+    
+                if($item->type === 'text/javascript'
+                    && $itemSrcPath
+                    && file_exists($itemSrcPath)
+                    && empty($item->attributes['conditional'])
+                    && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
+                ) {
+                    $filesToMinify[] = $itemSrcPath;
+                    $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
+                } else {
+                    if(isset($item->attributes['minify'])) {
+                        unset($item->attributes['minify']);
+                    }
+                    $items[] = $this->itemToString($item, $indent, $escapeStart, $escapeEnd);
                 }
-          }
-
-          $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath));
-          array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
+            }
+    
+            if(count($filesToMinify) > 0) {
+              $minifiedFileName = md5(implode('|', $filesToMinify)) . '.min.js';
+              $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
+              $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
+              $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
+    
+              $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
+              $isMinifiedFileBuildLocked = file_exists($lockFilePath);
+    
+              if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
+                    file_put_contents($lockFilePath, 'locked', LOCK_EX);
+                    try {
+                      $pieces = array();
+                      foreach ($filesToMinify as $filePath) {
+                          $pieces[] = file_get_contents($filePath);
+                      }
+                      $content = implode($this->getSeparator(), $pieces);
+                      $content = $this->minifyService->minify($content);
+                      file_put_contents($minifiedFilePath, $content, LOCK_EX);
+                    } catch(\Exception $e) {
+                      unlink($lockFilePath);
+                      throw new \Exception($e->getMessage());
+                    }
+                    unlink($lockFilePath);
+    
+                    //clean out old files
+                    $flattened = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->minifyCachePath));
+                    $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.js$/i');
+                    foreach($files as $file) {
+                      if(filemtime($file) < time() - 86400 * 7) {
+                        unlink($file);
+                      }
+                    }
+              }
+    
+              $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath));
+              array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
+            }
+    
+            return implode($this->getSeparator(), $items);       
+        } catch (\Exception $e) {
+            die("Fatal VcoZfMinify Error: " . $e->getMessage());
         }
-
-        return implode($this->getSeparator(), $items);
     }
     
     /**

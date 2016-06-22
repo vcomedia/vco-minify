@@ -97,88 +97,91 @@ class HeadLink extends HeadLinkOriginal {
      * @return string
      */
     public function toString ($indent = null) {
-
-      if ($this->minifyEnabled === false) {
-          return parent::toString($indent);
-      }
-
-      $indent = (null !== $indent)
-        ? $this->getWhitespace($indent)
-        : $this->getIndent();
-
-      $filesToMinify = array();
-      $lastModifiedTime = 0;
-
-      $items = [];
-      $this->getContainer()->ksort();
-      foreach ($this as $item) {
-          if (!$this->isValid($item)) {
-              continue;
+        try {
+          if ($this->minifyEnabled === false) {
+              return parent::toString($indent);
           }
-
-          $itemSrcPath = !empty($item->href) ? $this->minifyDocRootPath . trim($item->href,'/\ ') : null;
-          if($item->type === 'text/css'
-              && $itemSrcPath
-              && file_exists($itemSrcPath)
-              && empty($item->conditionalStylesheet)
-              && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
-          ) {
-            $filesToMinify[$item->media][] = $itemSrcPath;
-            $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
-          } else {
-            $items[] = $this->itemToString($item);
-          }
-      }
-
-      if(count($filesToMinify, COUNT_RECURSIVE) > 0) {
-        foreach($filesToMinify as $media => $filePaths) {
-          $minifiedFileName = md5(implode('|', $filePaths)) . '.min.css';
-          $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
-          $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
-          $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
-
-          $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
-          $isMinifiedFileBuildLocked = file_exists($lockFilePath);
-
-          if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
-              file_put_contents($lockFilePath, 'locked', LOCK_EX);
-              try {
-                $pieces = array();
-                foreach ($filePaths as $filePath) {
-                    $pieces[] = $this->minifyService->minify(file_get_contents($filePath), array('docRoot' => $this->minifyDocRootPath, 'currentDir' => dirname($filePath)));
-                }
-                $content = implode($this->getSeparator(), $pieces);
-                file_put_contents($minifiedFilePath, $content, LOCK_EX);
-              } catch(\Exception $e) {
-                unlink($lockFilePath);
-                throw new \Exception($e->getMessage());
+    
+          $indent = (null !== $indent)
+            ? $this->getWhitespace($indent)
+            : $this->getIndent();
+    
+          $filesToMinify = array();
+          $lastModifiedTime = 0;
+    
+          $items = [];
+          $this->getContainer()->ksort();
+          foreach ($this as $item) {
+              if (!$this->isValid($item)) {
+                  continue;
               }
-              unlink($lockFilePath);
-
-              //clean out old files
-              $flattened = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->minifyCachePath));
-              $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.css$/i');
-              foreach($files as $file) {
-                if(filemtime($file) < time() - 86400 * 7) {
-                  unlink($file);
-                }
+    
+              $itemSrcPath = !empty($item->href) ? $this->minifyDocRootPath . trim($item->href,'/\ ') : null;
+              if($item->type === 'text/css'
+                  && $itemSrcPath
+                  && file_exists($itemSrcPath)
+                  && empty($item->conditionalStylesheet)
+                  && (!isset($item->attributes['minify']) || $item->attributes['minify'] !== false)
+              ) {
+                $filesToMinify[$item->media][] = $itemSrcPath;
+                $lastModifiedTime = max(filemtime($itemSrcPath), $lastModifiedTime);
+              } else {
+                $items[] = $this->itemToString($item);
               }
           }
-
-          $item = $this->createData(
-            array(
-              'type'=>'text/css',
-              'rel' => 'stylesheet',
-              'media' => $media,
-              'href' => $minifiedFileBasePath,
-              'conditionalStylesheet' => false
-            )
-          );
-          array_unshift($items, $this->itemToString($item));
+    
+          if(count($filesToMinify, COUNT_RECURSIVE) > 0) {
+            foreach($filesToMinify as $media => $filePaths) {
+              $minifiedFileName = md5(implode('|', $filePaths)) . '.min.css';
+              $minifiedFileBasePath = $this->view->basePath($this->minifyCacheDir . '/' . $minifiedFileName);
+              $minifiedFilePath = $this->minifyDocRootPath . trim($minifiedFileBasePath, '\/ ');
+              $lockFilePath = sys_get_temp_dir() . '/' . $minifiedFileName . '.lock';
+    
+              $isMinifiedFileBuildRequired = !file_exists($minifiedFilePath) || filemtime($minifiedFilePath) < $lastModifiedTime;
+              $isMinifiedFileBuildLocked = file_exists($lockFilePath);
+    
+              if ($isMinifiedFileBuildRequired && !$isMinifiedFileBuildLocked){
+                  file_put_contents($lockFilePath, 'locked', LOCK_EX);
+                  try {
+                    $pieces = array();
+                    foreach ($filePaths as $filePath) {
+                        $pieces[] = $this->minifyService->minify(file_get_contents($filePath), array('docRoot' => $this->minifyDocRootPath, 'currentDir' => dirname($filePath)));
+                    }
+                    $content = implode($this->getSeparator(), $pieces);
+                    file_put_contents($minifiedFilePath, $content, LOCK_EX);
+                  } catch(\Exception $e) {
+                    unlink($lockFilePath);
+                    throw new \Exception($e->getMessage());
+                  }
+                  unlink($lockFilePath);
+    
+                  //clean out old files
+                  $flattened = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->minifyCachePath));
+                  $files = new \RegexIterator($flattened, '/^[a-f0-9]{32}\.min\.css$/i');
+                  foreach($files as $file) {
+                    if(filemtime($file) < time() - 86400 * 7) {
+                      unlink($file);
+                    }
+                  }
+              }
+    
+              $item = $this->createData(
+                array(
+                  'type'=>'text/css',
+                  'rel' => 'stylesheet',
+                  'media' => $media,
+                  'href' => $minifiedFileBasePath,
+                  'conditionalStylesheet' => false
+                )
+              );
+              array_unshift($items, $this->itemToString($item));
+            }
+          }
+    
+          return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
+        } catch (\Exception $e) {
+            die("Fatal VcoZfMinify Error: " . $e->getMessage());
         }
-      }
-
-      return $indent . implode($this->escape($this->getSeparator()) . $indent, $items);
     }
     
     public function itemToString(\stdClass $item)
