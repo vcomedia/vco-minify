@@ -176,7 +176,11 @@ class HeadScript extends HeadScriptOriginal {
                     }
               }
     
-              $item = $this->createData('text/javascript', array('src' => $minifiedFileBasePath));
+              $attributes = array('src' => $minifiedFileBasePath);
+              if(isset($this->minifyConfig['minifyJS']['async']) && $this->minifyConfig['minifyJS']['async'] === true) {
+                  $attributes['async'] = true;
+              }
+              $item = $this->createData('text/javascript', $attributes);
               array_unshift($items, $this->itemToString($item, $indent, $escapeStart, $escapeEnd));
             }
     

@@ -18,7 +18,8 @@ return array(
             'enabled' => false
         ),
         'minifyJS' => array(
-            'enabled' => false
+            'enabled' => false,
+            'async' => false
         )
     )
 );

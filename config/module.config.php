@@ -13,13 +13,15 @@ namespace VcoZfMinify;
 
 return array(
     'VcoZfMinify' => array(
+        'enableMediaPathModule' => false,
         'docRootDir' => 'public/',  //path to docRoot relative to app root - (preceeding and trailing slashes ignored)
         'cacheDir' => 'cache/',      //cache folder in documentRoot - (preceeding and trailing slashes ignored)
         'minifyCSS' => array(
             'enabled' => false
         ),
         'minifyJS' => array(
-            'enabled' => false
+            'enabled' => false,
+            'async' => false
         )
     )
 );
