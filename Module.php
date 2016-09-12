@@ -37,25 +37,13 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
         }
     }
 
-    public function outputCompress($e) {
+    public function outputCompress(EventInterface $e) {
+        $app = $e->getApplication();
+        $eventManager = $app->getEventManager();
+        $serviceManager = $app->getServiceManager(); 
+        $minifyHtmlService = $serviceManager->get('VcoZfMinify\Service\MinifyHtmlService');
         $response = $e->getResponse();
-        $response->setContent($this->_compress($response->getBody()));
-    }
-    
-    private function _compress($content) {
-        $search = array(
-            '/>[^S ]+/s',
-            '/[^S ]+</s',
-            '/(s)+/s', // shorten multiple whitespace sequences
-            '#(?://)?<![CDATA[(.*?)(?://)?]]>#s' //leave CDATA alone
-        );
-        $replace = array(
-            '>',
-            '<',
-            '\1',
-            "//&lt;![CDATA[n".'1'."n//]]>"
-        );
-        return  preg_replace($search, $replace, $content);
+        $response->setContent($minifyHtmlService->minify($response->getBody()));
     }
     
     /**
