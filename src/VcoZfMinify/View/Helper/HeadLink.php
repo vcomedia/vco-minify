@@ -62,6 +62,12 @@ class HeadLink extends HeadLinkOriginal {
      * @var MinifyServiceInterface
      */
     protected $minifyService;
+    
+    /**
+     *
+     * @var bool
+     */
+    protected $inline;    
 
     /**
      * Constructor
@@ -186,10 +192,54 @@ class HeadLink extends HeadLinkOriginal {
     
     public function itemToString(\stdClass $item)
     {
-        if(isset($item->href)) {
-            $item->href = ($this->startsWith($item->href, '//') || $this->startsWith($item->href, 'http') || $this->startsWith($item->href, 'ftp')) ? $item->href : $this->view->mediapath($item->href);
+        if(isset($item->href) && !$this->startsWith($item->href, '//') && 
+            !$this->startsWith($item->href, 'http') && !$this->startsWith($item->href, 'ftp')
+        ){
+            if($this->inline === true) {  
+                return $this->itemToInlineCssString($item);
+            } else {
+                $item->href = $this->view->mediapath($item->href);
+            }
         }  
         return parent::itemToString($item);
+    }
+    
+    /**
+     * Create HTML inline style element from data item
+     *
+     * @param  stdClass $item
+     * @return string
+     */
+    public function itemToInlineCssString(\stdClass $item)
+    {
+        $attributes = (array) $item;
+        $inlineStyles       = '<style';
+
+        foreach ($this->itemKeys as $itemKey) {
+            if ($itemKey != 'href' && $itemKey != 'rel' &&  isset($attributes[$itemKey])) {
+                if (is_array($attributes[$itemKey])) {
+                    foreach ($attributes[$itemKey] as $key => $value) {
+                        $inlineStyles .= sprintf(' %s="%s"', $key, ($this->autoEscape) ? $this->escape($value) : $value);
+                    }
+                } else {
+                    $inlineStyles .= sprintf(
+                        ' %s="%s"',
+                        $itemKey,
+                        ($this->autoEscape) ? $this->escape($attributes[$itemKey]) : $attributes[$itemKey]
+                    );
+                }
+            }
+        }
+
+        $inlineStyles .= ">" . file_get_contents($this->minifyDocRootPath . ltrim($item->href, '/')) . "</style>";
+
+        return $inlineStyles;
+    }
+    
+    
+    public function setInline($inline) {
+        $this->inline = $inline;
+        return $this;
     }
     
     private function startsWith($haystack, $needle) {
