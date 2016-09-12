@@ -83,7 +83,8 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
         return array(
             'invokables' => array(
                 'VcoZfMinify\Service\MinifyJsService' => 'VcoZfMinify\Service\MinifyJsService',
-                'VcoZfMinify\Service\MinifyCssService' => 'VcoZfMinify\Service\MinifyCssService'
+                'VcoZfMinify\Service\MinifyCssService' => 'VcoZfMinify\Service\MinifyCssService',
+                'VcoZfMinify\Service\MinifyHtmlService' => 'VcoZfMinify\Service\MinifyHtmlService'
             )
         );
     }
