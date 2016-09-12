@@ -14,6 +14,7 @@ namespace VcoZfMinify;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
 use Zend\ModuleManager\Feature\ServiceProviderInterface;
+use Zend\EventManager\EventInterface;
 
 /**
  * Class Module
@@ -24,7 +25,39 @@ use Zend\ModuleManager\Feature\ServiceProviderInterface;
  */
 
 class Module implements ConfigProviderInterface, ViewHelperProviderInterface, ServiceProviderInterface {
+    
+    public function onBootstrap(EventInterface $e) {
+        $app = $e->getApplication();
+        $eventManager = $app->getEventManager();
+        $serviceManager = $app->getServiceManager();
+        $config = $serviceManager->get('Config');
+        
+        if(isset($config['VcoZfMinify']['minifyHTML']) && isset($config['VcoZfMinify']['minifyHTML']['enabled']) && $config['VcoZfMinify']['minifyHTML']['enabled'] === true) {
+            $app->getEventManager()->attach('finish', array($this, 'outputCompress'), 100);
+        }
+    }
 
+    public function outputCompress($e) {
+        $response = $e->getResponse();
+        $response->setContent($this->_compress($response->getBody()));
+    }
+    
+    private function _compress($content) {
+        $search = array(
+            '/>[^S ]+/s',
+            '/[^S ]+</s',
+            '/(s)+/s', // shorten multiple whitespace sequences
+            '#(?://)?<![CDATA[(.*?)(?://)?]]>#s' //leave CDATA alone
+        );
+        $replace = array(
+            '>',
+            '<',
+            '\1',
+            "//&lt;![CDATA[n".'1'."n//]]>"
+        );
+        return  preg_replace($search, $replace, $content);
+    }
+    
     /**
      * @return array
      */

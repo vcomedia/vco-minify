@@ -22,6 +22,9 @@ return array(
         'minifyJS' => array(
             'enabled' => false,
             'async' => false
+        ),
+        'minifyHTML' => array(
+            'enabled' => false,
         )
     )
 );
