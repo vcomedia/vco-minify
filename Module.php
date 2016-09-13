@@ -43,7 +43,9 @@ class Module implements ConfigProviderInterface, ViewHelperProviderInterface, Se
         $serviceManager = $app->getServiceManager(); 
         $minifyHtmlService = $serviceManager->get('VcoZfMinify\Service\MinifyHtmlService');
         $response = $e->getResponse();
-        $response->setContent($minifyHtmlService->minify($response->getBody()));
+        if(method_exists($response, 'getBody')) {
+            $response->setContent($minifyHtmlService->minify($response->getBody()));
+        }
     }
     
     /**
