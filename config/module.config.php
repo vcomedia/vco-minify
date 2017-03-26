@@ -16,6 +16,7 @@ return array(
         'enableMediaPathModule' => false,
         'docRootDir' => 'public/',  //path to docRoot relative to app root - (preceeding and trailing slashes ignored)
         'cacheDir' => 'cache/',      //cache folder in documentRoot - (preceeding and trailing slashes ignored)
+        'version' => '0.0.1', //version of files to force update cached files
         'minifyCSS' => array(
             'enabled' => false
         ),

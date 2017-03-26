@@ -56,6 +56,11 @@ class HeadScript extends HeadScriptOriginal {
      * @var string
      */
     protected $minifyCachePath;
+    /**
+    *
+    * @var string
+    */
+    protected $version;    
 
     /**
      *
@@ -77,6 +82,7 @@ class HeadScript extends HeadScriptOriginal {
         $this->minifyDocRootPath = getcwd() . '/' . $this->minifyDocRootDir . '/';
         $this->minifyCacheDir = trim($this->minifyConfig['cacheDir'],'/\ ');
         $this->minifyCachePath = $this->minifyDocRootPath . $this->minifyCacheDir;
+        $this->minifyVersion = $this->minifyConfig['version'];
 
         if(!file_exists($this->minifyCachePath) && mkdir($this->minifyCachePath, 0755, true) === false) {
           throw new \Exception("Cache dir does not exist and could not be created - '$this->minifyCachePath'");
@@ -176,7 +182,7 @@ class HeadScript extends HeadScriptOriginal {
                     }
               }
     
-              $attributes = array('src' => $minifiedFileBasePath);
+              $attributes = array('src' => $minifiedFileBasePath . '?' . $this->minifyVersion);
               if(isset($this->minifyConfig['minifyJS']['async']) && $this->minifyConfig['minifyJS']['async'] === true) {
                   $attributes['async'] = true;
               }
